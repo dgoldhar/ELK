@@ -1,133 +1,88 @@
-# empow module for Elasticsearch stack
-The Elasticsearch stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.
+﻿<!DOCTYPE html>
+<html>
 
-The empow module extends the capability of this stack at the ingestion stage, by classifying your log data, using the empow classification center, for attack intent and stage. This is added to the log data, and stored with it. You can then use the other elements of the stack to more effectively analyse and visualize your attack log data.
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
 
-
-# Supported platforms
-
- * Ubuntu 18
- 
- 
-# What you will need
-
-Java 8 
-
-Logstash
-
-Elasticsearch
-
-Kibana
-
-empow module
-
-# Install components
-
-We will use apt-get to download & install the components on Ubuntu 18.04, but other methods can also be used (references to the Elasticsearch site are included).
-
-Download the GPG key for the elasticsearch components
-
-```wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -```
-
-(Note: the flag is q*O*, not q0)
-
-```sudo apt-get install apt-transport-https```
-
-```echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list```
-
-
-## Java 
-
-Check if Java is installed
-
-Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.
-
-```java -version```
-
-### Install Java 8
-
-```sudo apt install openjdk-8-jdk```
-
-Confirm the installation
-```java -version```
-
-This should return something like this:
-
-```openjdk version "1.8.0_162"
-OpenJDK Runtime Environment (build 1.8.0_162-8u162-b12-1-b12)
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="empow-module-for-elasticsearch-stack">empow module for Elasticsearch stack</h1>
+<p>The Elasticsearch stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.</p>
+<p>The empow module extends the capability of this stack at the ingestion stage, by classifying your log data, using the empow classification center, for attack intent and stage. This is added to the log data, and stored with it. You can then use the other elements of the stack to more effectively analyse and visualize your attack log data.</p>
+<h1 id="supported-platforms">Supported platforms</h1>
+<ul>
+<li>Ubuntu 18</li>
+</ul>
+<h1 id="what-you-will-need">What you will need</h1>
+<p>Java 8</p>
+<p>Logstash</p>
+<p>Elasticsearch</p>
+<p>Kibana</p>
+<p>empow module</p>
+<h1 id="install-components">Install components</h1>
+<p>We will use apt-get to download &amp; install the components on Ubuntu 18.04, but other methods can also be used (references to the Elasticsearch site are included).</p>
+<p>Download the GPG key for the elasticsearch components</p>
+<p><code>wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -</code></p>
+<p>(Note: the flag is q<em>O</em>, not q0)</p>
+<p><code>sudo apt-get install apt-transport-https</code></p>
+<p><code>echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list</code></p>
+<h2 id="java">Java</h2>
+<p>Check if Java is installed</p>
+<p>Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.</p>
+<p><code>java -version</code></p>
+<h3 id="install-java-8">Install Java 8</h3>
+<p><code>sudo apt install openjdk-8-jdk</code></p>
+<p>Confirm the installation<br>
+<code>java -version</code></p>
+<p>This should return something like this:</p>
+<pre class=" language-openjdk"><code class="prism  language-openjdk">OpenJDK Runtime Environment (build 1.8.0_162-8u162-b12-1-b12)
 OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
-```
-
-## Logstash
-
-### Install logstash
-
-```sudo apt-get update && sudo apt-get install logstash```
-
-### Configure logstash as a service
-
-```sudo systemctl start logstash.service```
-
-### Configure logstash
-
-Logstash uses a configuration file (e.g., logstash.config) to tell it where to listen for log records (a port), how to parse the log info once received, and what to store in elasticsearch
-
-The config files are in ```/etc/logstash/conf.d``` and have extension ```.conf```,  e.g., ```logstash.conf```.
-
-To test logstash, edit a config file, ```logstash-test.conf``` and add the following:
-```
-input {
-udp{ port => 2055 }
+</code></pre>
+<h2 id="logstash">Logstash</h2>
+<h3 id="install-logstash">Install logstash</h3>
+<p><code>sudo apt-get update &amp;&amp; sudo apt-get install logstash</code></p>
+<h3 id="configure-logstash-as-a-service">Configure logstash as a service</h3>
+<p><code>sudo systemctl start logstash.service</code></p>
+<h3 id="configure-logstash">Configure logstash</h3>
+<p>Logstash uses a configuration file (e.g., logstash.config) to tell it where to listen for log records (a port), how to parse the log info once received, and what to store in elasticsearch</p>
+<p>The config files are in <code>/etc/logstash/conf.d</code> and have extension <code>.conf</code>,  e.g., <code>logstash.conf</code>.</p>
+<p>To test logstash, edit a config file, <code>logstash-test.conf</code> and add the following:</p>
+<pre><code>input {
+udp{ port =&gt; 2055 }
 }
 filter {
-grok {match => {"message" => "%{IP:src_ip} %{IP:dst_ip}"}}
+grok {match =&gt; {"message" =&gt; "%{IP:src_ip} %{IP:dst_ip}"}}
 }
 output {
 udp{ 
-host => "127.0.0.1"
-port => 1237
+host =&gt; "127.0.0.1"
+port =&gt; 1237
 }
 }
-```
-Run logstash with this config file
-
-``` 
-bin/logstash -f logstash-test.conf
-```
-
-Send the following text to port 2055:
-
-```"10.0.0.1 1.2.3.4"```
-
-
-## Elasticsearch
-
-### Install elasticsearch
-
-```sudo apt-get update && sudo apt-get install elasticsearch```
-
-
-### Configure elasticsearch as a service
-```
-sudo /bin/systemctl daemon-reload
+</code></pre>
+<p>Run logstash with this config file</p>
+<pre><code>bin/logstash -f logstash-test.conf
+</code></pre>
+<p>Send the following text to port 2055:</p>
+<p><code>"10.0.0.1 1.2.3.4"</code></p>
+<h2 id="elasticsearch">Elasticsearch</h2>
+<h3 id="install-elasticsearch">Install elasticsearch</h3>
+<p><code>sudo apt-get update &amp;&amp; sudo apt-get install elasticsearch</code></p>
+<h3 id="configure-elasticsearch-as-a-service">Configure elasticsearch as a service</h3>
+<pre><code>sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable elasticsearch.service
-```
-### Start elasticsearch
+</code></pre>
+<h3 id="start-elasticsearch">Start elasticsearch</h3>
+<p><code>sudo systemctl start elasticsearch.service</code></p>
+<h4 id="check-elasticsearch-is-running">Check elasticsearch is running</h4>
+<p>Run the following curl command</p>
+<p><code>curl -X GET "localhost:9200/"</code></p>
+<p>You should see something like this returned:</p>
 
-```sudo systemctl start elasticsearch.service```
-
-
-#### Check elasticsearch is running
-
-Run the following curl command
-
-```curl -X GET "localhost:9200/"```
-
-You should see something like this returned:
-<details>
-
-```
-{
+<pre><code>{
   "name" : "Cp8oag6",
   "cluster_name" : "elasticsearch",
   "cluster_uuid" : "AT69_T_DTp-1qgIJlatQqA",
@@ -144,35 +99,22 @@ You should see something like this returned:
   },
   "tagline" : "You Know, for Search"
 }
-```
-</details>
+</code></pre>
 
-
-## Kibana
-
-### Install Kibana
-
-```sudo apt-get update && sudo apt-get install kibana```
-
-### Configure Kibana as a service
-```
-sudo /bin/systemctl daemon-reload
+<h2 id="kibana">Kibana</h2>
+<h3 id="install-kibana">Install Kibana</h3>
+<p><code>sudo apt-get update &amp;&amp; sudo apt-get install kibana</code></p>
+<h3 id="configure-kibana-as-a-service">Configure Kibana as a service</h3>
+<pre><code>sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable kibana.service
-```
+</code></pre>
+<h3 id="start-the-kibana-as-a-service">Start the Kibana as a service</h3>
+<p><code>sudo systemctl start kibana.service</code></p>
+<h4 id="test-that-kibana-is-running-in-a-browser">Test that Kibana is running in a browser</h4>
+<p><code>http://localhost:5601</code></p>
+<h2 id="empow-module">empow module</h2>
+<h1 id="configuration">Configuration</h1>
+</div>
+</body>
 
-
-### Start the Kibana as a service
-
-```sudo systemctl start kibana.service```
-
-
-#### Test that Kibana is running in a browser
-
-
-```http://localhost:5601```
-
-
-## empow module
-
-# Configuration
-
+</html>
