@@ -76,9 +76,6 @@ Download & install elasticsearch
 
 ```sudo apt-get update && sudo apt-get install elasticsearch```
 
-Configure elasticsearch as a service
-
-```sudo apt-get update && sudo apt-get install elasticsearch```
 
 Configure elasticsearch as a service
 ```
@@ -135,10 +132,15 @@ Download & install Kibana
 
 ```sudo apt-get update && sudo apt-get install kibana```
 
+Start the Kibana as a service
+
+```sudo systemctl start kibana.service```
+
+
 Test that Kibana is running in a browser
 
 
-```https://localhost:5601```
+```http://localhost:5601```
 
 
 empow module
