@@ -21,29 +21,30 @@ Kibana
 
 empow module
 
-# Download components
+# Install components
 
-We will use apt-get to download & install the components, but other methods can also be used (references to the Elasticsearch site are included).
+We will use apt-get to download & install the components on Ubuntu 18.04, but other methods can also be used (references to the Elasticsearch site are included).
 
 Download the GPG key for the elasticsearch components
 
 ```wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -```
 
-(Note: the flag is qO, not q0)
+(Note: the flag is q*O*, not q0)
 
 ```sudo apt-get install apt-transport-https```
 
 ```echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list```
 
 
-# Java 
+## Java 
 
 Check if Java is installed
+
 Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.
 
 ```java -version```
 
-Install Java 8
+### Install Java 8
 
 ```sudo apt install openjdk-8-jdk```
 
@@ -59,11 +60,11 @@ OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 
 ## Logstash
 
-Download & install logstash
+### Install logstash
 
 ```sudo apt-get update && sudo apt-get install logstash```
 
-Configure logstash as a service
+### Configure logstash as a service
 
 ```sudo systemctl start logstash.service```
 
@@ -71,27 +72,52 @@ Configure logstash as a service
 
 Logstash uses a configuration file (e.g., logstash.config) to tell it where to listen for log records (a port), how to parse the log info once received, and what to store in elasticsearch
 
+The config files are in ```/etc/logstash/conf.d``` and have extension ```.conf```,  e.g., ```logstash.conf```.
+
+To test logstash, edit a config file, ```logstash-test.conf``` and add the following:
+```
+input {
+udp{ port => 2055 }
+}
+filter {
+grok {match => {"message" => "%{IP:src_ip} %{IP:dst_ip}"}}
+}
+output {
+udp{ 
+host => "127.0.0.1"
+port => 1237
+}
+}
+```
+Run logstash with this config file
+
+``` 
+bin/logstash -f logstash-test.conf
+```
+
+Send the following text to port 2055:
+
+```"10.0.0.1 1.2.3.4"```
+
 
 ## Elasticsearch
 
-Download & install elasticsearch
+### Install elasticsearch
 
 ```sudo apt-get update && sudo apt-get install elasticsearch```
 
 
-Configure elasticsearch as a service
+### Configure elasticsearch as a service
 ```
 sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable elasticsearch.service
 ```
-
-Start elasticsearch
+### Start elasticsearch
 
 ```sudo systemctl start elasticsearch.service```
 
 
-
-Check elasticsearch is running
+#### Check elasticsearch is running
 
 Run the following curl command
 
@@ -122,32 +148,31 @@ You should see something like this returned:
 </details>
 
 
-Configure as a service
+## Kibana
 
-```sudo /bin/systemctl daemon-reload
+### Install Kibana
+
+```sudo apt-get update && sudo apt-get install kibana```
+
+### Configure Kibana as a service
+```
+sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable kibana.service
 ```
 
 
-
-## Kibana
-
-Download & install Kibana
-
-```sudo apt-get update && sudo apt-get install kibana```
-
-Start the Kibana as a service
+### Start the Kibana as a service
 
 ```sudo systemctl start kibana.service```
 
 
-Test that Kibana is running in a browser
+#### Test that Kibana is running in a browser
 
 
 ```http://localhost:5601```
 
 
-empow module
+## empow module
 
-Configuration
+# Configuration
 
