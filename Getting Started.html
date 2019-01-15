@@ -29,6 +29,8 @@ Download the GPG key for the elasticsearch components
 
 ```wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -```
 
+(Note: the flag is qO, not q0)
+
 ```sudo apt-get install apt-transport-https```
 
 ```echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list```
@@ -83,6 +85,12 @@ sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable elasticsearch.service
 ```
 
+Start elasticsearch
+
+```sudo systemctl start elasticsearch.service```
+
+
+
 Check elasticsearch is running
 
 Run the following curl command
@@ -113,10 +121,6 @@ You should see something like this returned:
 ```
 </details>
 
-
-Start the elasticsearch service
-
-```sudo -i service elasticsearch start```
 
 Configure as a service
 
