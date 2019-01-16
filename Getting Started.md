@@ -1,24 +1,30 @@
 # empow logstash classification plugin & ELK module 
 The Elasticsearch stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.
 
-The empow module extends the capability of this stack at the ingestion stage, by classifying your log data, using the empow classification center, for attack intent and stage. This is added to the log data, and stored with it. You can then use the other elements of the stack to more effectively analyse and visualize your attack log data.
+The empow classification plugin extends the functionality of logstash by classifying your log data, using the empow classification center, for attack intent and stage. 
+
+The empow module has preconfigured configurations for the entire ELK stack, that you can use 'out-of-the-box' to ingest, store, and visualize log data from your network devices.
+
+
 
 
 # Supported platforms
 
---recommend ubuntu 18.04 (debian). Should work on all platforms on which ELK is supported.
+The plugin and module will run on any platform on which the ELK stack is supported.
 
-- Ubuntu 18.04
- 
- 
+We will use Ubuntu 18.04 as the reference platform for this note.
+
+
 # What you will need
 
-Getting Started:
+To get started, you will need to install these components:
+
 Java 8 
 
 Logstash
 
-Advanced (optional) & module:
+
+After this, you can add the other elements of the stack, and the empow module:
 
 Elasticsearch
 
@@ -26,14 +32,14 @@ Kibana
 
 empow module
 
-# Install components
+<hr>
 
--- will use debian, wget & dpkg to install components.
+# Get started with logstash and the empow plugin
 
-We will use apt-get to download & install the components on Ubuntu 18.04, but other methods can also be used (references to the Elasticsearch site are included).
+The procedures below use _dpkg_ on Ubuntu. Other methods to acquire and install packages can also be used (we have references to relevant sites for packages and methods)
 
 
--- don't need this:
+<!--- don't need this:
 Download the GPG key for the elasticsearch components
 
 ```wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -```
@@ -44,19 +50,20 @@ Download the GPG key for the elasticsearch components
 
 ```echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list```
 
+-->
+
 
 ## Java 
 
 _Check if Java is installed_
 
 
-Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.
+Java must be installed before installing logstash. Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.
 
 ```java -version```
 
 ### Install Java 8
 
-(java must be installed before installing logstash)
 
 ```sudo apt install openjdk-8-jdk```
 
@@ -71,28 +78,29 @@ OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 ```
 <hr>
 
-# Get started with logstash & empow classification plugin
 
 ## Logstash
 
 ### Install logstash
 
-wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb 
+```wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb ```
 
-sudo dpkg -i logstash-6.5.4.deb 
+```sudo dpkg -i logstash-6.5.4.deb```
 
-<!--- remove this
- ```sudo apt-get update && sudo apt-get install logstash```
+Start the logstash service
 
--->
+```sudo service logstash start```
+
+Check the service is running with this:
+
+```sudo service logstash status
 
 ## Install empow classification plugin
 
-sudo /usr/share/logstash/bin/logstash/logstash-plugin install 
+sudo /usr/share/logstash/bin/logstash/logstash-plugin install <plugin name>
 
-logstash-filter-empow
 
--- after this, you are ready to work with logstash....
+Now, you can start using logstash....
 
 ### register with empow to use plugin 
 <!--- add this later...
