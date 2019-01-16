@@ -1,4 +1,4 @@
-# empow module for Elasticsearch stack
+# empow logstash classification plugin & ELK module 
 The Elasticsearch stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.
 
 The empow module extends the capability of this stack at the ingestion stage, by classifying your log data, using the empow classification center, for attack intent and stage. This is added to the log data, and stored with it. You can then use the other elements of the stack to more effectively analyse and visualize your attack log data.
@@ -6,14 +6,19 @@ The empow module extends the capability of this stack at the ingestion stage, by
 
 # Supported platforms
 
-- Ubuntu 18
+--recommend ubuntu 18.04 (debian). Should work on all platforms on which ELK is supported.
+
+- Ubuntu 18.04
  
  
 # What you will need
 
+Getting Started:
 Java 8 
 
 Logstash
+
+Advanced (optional) & module:
 
 Elasticsearch
 
@@ -23,8 +28,12 @@ empow module
 
 # Install components
 
+-- will use debian, wget & dpkg to install components.
+
 We will use apt-get to download & install the components on Ubuntu 18.04, but other methods can also be used (references to the Elasticsearch site are included).
 
+
+-- don't need this:
 Download the GPG key for the elasticsearch components
 
 ```wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -```
@@ -47,6 +56,8 @@ Run this commmand to check if Java is installed, and which version. If an error 
 
 ### Install Java 8
 
+(java must be installed before installing logstash)
+
 ```sudo apt install openjdk-8-jdk```
 
 Confirm the installation
@@ -58,18 +69,54 @@ This should return something like this:
 OpenJDK Runtime Environment (build 1.8.0_162-8u162-b12-1-b12)
 OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 ```
+<hr>
+
+# Get started with logstash & empow classification plugin
 
 ## Logstash
 
 ### Install logstash
 
-```sudo apt-get update && sudo apt-get install logstash```
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb 
 
-### Configure logstash as a service
+sudo dpkg -i logstash-6.5.4.deb 
 
+<!--- remove this
+ ```sudo apt-get update && sudo apt-get install logstash```
+
+-->
+
+## Install empow classification plugin
+
+sudo /usr/share/logstash/bin/logstash/logstash-plugin install 
+
+logstash-filter-empow
+
+-- after this, you are ready to work with logstash....
+
+### register with empow to use plugin 
+<!--- add this later...
+-->
+
+
+
+
+### Configure logstash as a service (not sure if this is needed)
+
+<!--- replace this
 ```sudo systemctl start logstash.service```
+-->
 
-### Configure logstash
+sudo service start logstash (for ubuntu)
+<hr>
+
+## Configure logstash
+
+<!--
+--  pipeline config
+-- execution config
+-->
+
 
 Logstash uses a configuration file (e.g., logstash.config) to tell it where to listen for log records (a port), how to parse the log info once received, and what to store in elasticsearch
 
@@ -101,11 +148,21 @@ Send the following text to port 2055:
 ```"10.0.0.1 1.2.3.4"```
 
 
+<hr>
+
+# Elasticsearch & Kibana
+
+
 ## Elasticsearch
 
 ### Install elasticsearch
 
+wget ...
+sudo dpkg ...
+
+<!---
 ```sudo apt-get update && sudo apt-get install elasticsearch```
+-->
 
 
 ### Configure elasticsearch as a service
@@ -113,12 +170,17 @@ Send the following text to port 2055:
 sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable elasticsearch.service
 ```
+sudo service start elasticsearch
+
+
 ### Start elasticsearch
 
 ```sudo systemctl start elasticsearch.service```
 
 
 #### Check elasticsearch is running
+
+sudo service status elasticsearch
 
 Run the following curl command
 
