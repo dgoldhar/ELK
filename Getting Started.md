@@ -6,13 +6,12 @@ The empow module extends the capability of this stack at the ingestion stage, by
 
 # Supported platforms
 
-  - Ubuntu 18
+- Ubuntu 18
  
  
 # What you will need
 
 Java 8 
-
 
 Logstash
 
@@ -39,7 +38,8 @@ Download the GPG key for the elasticsearch components
 
 ## Java 
 
-Check if Java is installed
+_Check if Java is installed_
+
 
 Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.
 
@@ -167,13 +167,25 @@ sudo /bin/systemctl enable kibana.service
 ```sudo systemctl start kibana.service```
 
 
-#### Test that Kibana is running in a browser
+#### Test that Kibana is running
+
+Open the following URL in a browser
 
 
 ```http://localhost:5601```
 
 
+The Kibana home page should appear.
+
+
 ## empow module
+
+Download the empow module
+
+Augment your logstash config file to use the empow module
+
+Test log data for the empow module
+
 
 # Configuration
 
