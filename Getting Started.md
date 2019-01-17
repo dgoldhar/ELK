@@ -80,7 +80,7 @@ OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 
 
 ## Logstash
-
+su
 ### Install logstash
 
 ```wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb ```
@@ -89,18 +89,92 @@ OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 
 Start the logstash service
 
-```sudo service logstash start```
+```su```
 
 Check the service is running with this:
 
-```sudo service logstash status
+```sudo service logstash status```
 
-## Install empow classification plugin
+## Install the empow classification plugin
 
-sudo /usr/share/logstash/bin/logstash/logstash-plugin install <plugin name>
+sudo /usr/share/logstash/bin/logstash-plugin install <plugin name>
 
 
 Now, you can start using logstash....
+
+Example logstash conf file 
+
+This file uses the empow plugin.
+
+```
+input{
+  udp{
+    port => 2055
+  }
+}
+
+filter{
+  grok{
+    match => { "message" => "(?<sig_id>[0-9]:[0-9]+)"}
+  }
+
+  mutate{
+    add_field => {"product_type" => "IDS"}
+    add_field => {"product_name" => "snort"}
+    rename => {"sig_id" => "[term][signature]"}
+    add_field => {"is_src_internal" => 1}
+    add_field => {"is_dst_internal" => 0}
+  }
+
+  empowclassifier {
+     classification_url => "https://s0apxz9wik.execute-api.us-east-2.amazonaws.com"
+     classification_username => "assaf"
+     classification_password => "Empow2018!"
+  }
+
+
+}
+
+output{
+  udp{
+   host => "127.0.0.1"
+   port => 1237
+  }
+}
+```
+
+Copy this file to the config file folder & restart logstash
+
+
+```sudo cp empow_example.conf  /etc/logstash/conf.d/```
+
+restart logstash
+
+```sudo service logstash restart```
+
+Open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:
+
+In the first:
+
+```nc -luk 1237```
+
+In the second:
+
+```nc -u 127.0.0.1 2055```
+
+Then enter:
+
+```1:1234```
+
+In the first (the listener), the following should appear:
+
+
+
+```
+{"is_dst_internal":"0","message":"1:1234\n","product_name":"snort","@timestamp":"2019-01-16T14:37:56.889Z","term":{"signature":"1:1234"},"@version":"1","product_type":"IDS","is_src_internal":"1","tags":["_src_internal_wrong_value","_dst_internal_wrong_value"],"empow_intents":[{"attackStage":"Infiltration","isSrcPerformer":true,"tactic":"Full compromise - active patterns"}],"host":"127.0.0.1"}
+```
+
+
 
 ### register with empow to use plugin 
 <!--- add this later...
