@@ -9,29 +9,28 @@
 </head>
 
 <body class="stackedit">
-  <div class="stackedit__html"><h1 id="empow-module-for-elasticsearch-stack">empow module for Elasticsearch stack</h1>
+  <div class="stackedit__html"><h1 id="empow-logstash-classification-plugin--elk-module">empow logstash classification plugin &amp; ELK module</h1>
 <p>The Elasticsearch stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.</p>
-<p>The empow module extends the capability of this stack at the ingestion stage, by classifying your log data, using the empow classification center, for attack intent and stage. This is added to the log data, and stored with it. You can then use the other elements of the stack to more effectively analyse and visualize your attack log data.</p>
+<p>The empow classification plugin extends the functionality of logstash by classifying your log data, using the empow classification center, for attack intent and stage.</p>
+<p>The empow module has preconfigured configurations for the entire ELK stack, that you can use ‘out-of-the-box’ to ingest, store, and visualize log data from your network devices.</p>
 <h1 id="supported-platforms">Supported platforms</h1>
-<ul>
-<li>Ubuntu 18</li>
-</ul>
+<p>The plugin and module will run on any platform on which the ELK stack is supported.</p>
+<p>We will use Ubuntu 18.04 as the reference platform for this note.</p>
 <h1 id="what-you-will-need">What you will need</h1>
+<p>To get started, you will need to install these components:</p>
 <p>Java 8</p>
 <p>Logstash</p>
+<p>After this, you can add the other elements of the stack, and the empow module:</p>
 <p>Elasticsearch</p>
 <p>Kibana</p>
 <p>empow module</p>
-<h1 id="install-components">Install components</h1>
-<p>We will use apt-get to download &amp; install the components on Ubuntu 18.04, but other methods can also be used (references to the Elasticsearch site are included).</p>
-<p>Download the GPG key for the elasticsearch components</p>
-<p><code>wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -</code></p>
-<p>(Note: the flag is q<em>O</em>, not q0)</p>
-<p><code>sudo apt-get install apt-transport-https</code></p>
-<p><code>echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list</code></p>
+<hr>
+<h1 id="get-started-with-logstash-and-the-empow-plugin">Get started with logstash and the empow plugin</h1>
+<p>The procedures below use <em>dpkg</em> on Ubuntu. Other methods to acquire and install packages can also be used (we have references to relevant sites for packages and methods)</p>
+<!--- don't need this:&#10;Download the GPG key for the elasticsearch components&#10;&#10;```wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -```&#10;&#10;(Note: the flag is q*O*, not q0)&#10;&#10;```sudo apt-get install apt-transport-https```&#10;&#10;```echo &#34;deb https://artifacts.elastic.co/packages/6.x/apt stable main&#34; | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list```&#10;&#10;-->
 <h2 id="java">Java</h2>
-<p>Check if Java is installed</p>
-<p>Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.</p>
+<p><em>Check if Java is installed</em></p>
+<p>Java must be installed before installing logstash. Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.</p>
 <p><code>java -version</code></p>
 <h3 id="install-java-8">Install Java 8</h3>
 <p><code>sudo apt install openjdk-8-jdk</code></p>
@@ -41,12 +40,77 @@
 <pre class=" language-openjdk"><code class="prism  language-openjdk">OpenJDK Runtime Environment (build 1.8.0_162-8u162-b12-1-b12)
 OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 </code></pre>
+<hr>
 <h2 id="logstash">Logstash</h2>
+<p>su</p>
 <h3 id="install-logstash">Install logstash</h3>
-<p><code>sudo apt-get update &amp;&amp; sudo apt-get install logstash</code></p>
-<h3 id="configure-logstash-as-a-service">Configure logstash as a service</h3>
-<p><code>sudo systemctl start logstash.service</code></p>
-<h3 id="configure-logstash">Configure logstash</h3>
+<p><code>wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb</code></p>
+<p><code>sudo dpkg -i logstash-6.5.4.deb</code></p>
+<p>Start the logstash service</p>
+<p><code>su</code></p>
+<p>Check the service is running with this:</p>
+<p><code>sudo service logstash status</code></p>
+<h2 id="install-the-empow-classification-plugin">Install the empow classification plugin</h2>
+<p>sudo /usr/share/logstash/bin/logstash-plugin install </p>
+<p>Now, you can start using logstash…</p>
+<p>Example logstash conf file</p>
+<p>This file uses the empow plugin.</p>
+<pre><code>input{
+  udp{
+    port =&gt; 2055
+  }
+}
+
+filter{
+  grok{
+    match =&gt; { "message" =&gt; "(?&lt;sig_id&gt;[0-9]:[0-9]+)"}
+  }
+
+  mutate{
+    add_field =&gt; {"product_type" =&gt; "IDS"}
+    add_field =&gt; {"product_name" =&gt; "snort"}
+    rename =&gt; {"sig_id" =&gt; "[term][signature]"}
+    add_field =&gt; {"is_src_internal" =&gt; 1}
+    add_field =&gt; {"is_dst_internal" =&gt; 0}
+  }
+
+  empowclassifier {
+     classification_url =&gt; "https://s0apxz9wik.execute-api.us-east-2.amazonaws.com"
+     classification_username =&gt; "assaf"
+     classification_password =&gt; "Empow2018!"
+  }
+
+
+}
+
+output{
+  udp{
+   host =&gt; "127.0.0.1"
+   port =&gt; 1237
+  }
+}
+</code></pre>
+<p>Copy this file to the config file folder &amp; restart logstash</p>
+<p><code>sudo cp empow_example.conf /etc/logstash/conf.d/</code></p>
+<p>restart logstash</p>
+<p><code>sudo service logstash restart</code></p>
+<p>Open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:</p>
+<p>In the first:</p>
+<p><code>nc -luk 1237</code></p>
+<p>In the second:</p>
+<p><code>nc -u 127.0.0.1 2055</code></p>
+<p>Then enter:</p>
+<p><code>1:1234</code></p>
+<p>In the first (the listener), the following should appear:</p>
+<pre><code>{"is_dst_internal":"0","message":"1:1234\n","product_name":"snort","@timestamp":"2019-01-16T14:37:56.889Z","term":{"signature":"1:1234"},"@version":"1","product_type":"IDS","is_src_internal":"1","tags":["_src_internal_wrong_value","_dst_internal_wrong_value"],"empow_intents":[{"attackStage":"Infiltration","isSrcPerformer":true,"tactic":"Full compromise - active patterns"}],"host":"127.0.0.1"}
+</code></pre>
+<h3 id="register-with-empow-to-use-plugin">register with empow to use plugin</h3>
+<!--- add this later...&#10;-->
+<h3 id="configure-logstash-as-a-service-not-sure-if-this-is-needed">Configure logstash as a service (not sure if this is needed)</h3>
+<!--- replace this&#10;```sudo systemctl start logstash.service```&#10;-->
+<p>sudo service start logstash (for ubuntu)</p>
+<hr>
+<h2 id="configure-logstash">Configure logstash</h2>
 <p>Logstash uses a configuration file (e.g., logstash.config) to tell it where to listen for log records (a port), how to parse the log info once received, and what to store in elasticsearch</p>
 <p>The config files are in <code>/etc/logstash/conf.d</code> and have extension <code>.conf</code>,  e.g., <code>logstash.conf</code>.</p>
 <p>To test logstash, edit a config file, <code>logstash-test.conf</code> and add the following:</p>
@@ -68,16 +132,22 @@ port =&gt; 1237
 </code></pre>
 <p>Send the following text to port 2055:</p>
 <p><code>"10.0.0.1 1.2.3.4"</code></p>
+<hr>
+<h1 id="elasticsearch--kibana">Elasticsearch &amp; Kibana</h1>
 <h2 id="elasticsearch">Elasticsearch</h2>
 <h3 id="install-elasticsearch">Install elasticsearch</h3>
-<p><code>sudo apt-get update &amp;&amp; sudo apt-get install elasticsearch</code></p>
+<p>wget …<br>
+sudo dpkg …</p>
+<!---&#10;```sudo apt-get update &amp;&amp; sudo apt-get install elasticsearch```&#10;-->
 <h3 id="configure-elasticsearch-as-a-service">Configure elasticsearch as a service</h3>
 <pre><code>sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable elasticsearch.service
 </code></pre>
+<p>sudo service start elasticsearch</p>
 <h3 id="start-elasticsearch">Start elasticsearch</h3>
 <p><code>sudo systemctl start elasticsearch.service</code></p>
 <h4 id="check-elasticsearch-is-running">Check elasticsearch is running</h4>
+<p>sudo service status elasticsearch</p>
 <p>Run the following curl command</p>
 <p><code>curl -X GET "localhost:9200/"</code></p>
 <p>You should see something like this returned:</p>
@@ -110,9 +180,14 @@ sudo /bin/systemctl enable kibana.service
 </code></pre>
 <h3 id="start-the-kibana-as-a-service">Start the Kibana as a service</h3>
 <p><code>sudo systemctl start kibana.service</code></p>
-<h4 id="test-that-kibana-is-running-in-a-browser">Test that Kibana is running in a browser</h4>
+<h4 id="test-that-kibana-is-running">Test that Kibana is running</h4>
+<p>Open the following URL in a browser</p>
 <p><code>http://localhost:5601</code></p>
+<p>The Kibana home page should appear.</p>
 <h2 id="empow-module">empow module</h2>
+<p>Download the empow module</p>
+<p>Augment your logstash config file to use the empow module</p>
+<p>Test log data for the empow module</p>
 <h1 id="configuration">Configuration</h1>
 </div>
 </body>

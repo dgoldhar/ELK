@@ -76,35 +76,39 @@ This should return something like this:
 OpenJDK Runtime Environment (build 1.8.0_162-8u162-b12-1-b12)
 OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 ```
+
 <hr>
 
 
 ## Logstash
-su
+
+We will install the Debian version ```6.5.4```. Check this [page](https://www.elastic.co/downloads/logstash) for the link for this (and other download options). 
+
 ### Install logstash
 
 ```wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb ```
 
 ```sudo dpkg -i logstash-6.5.4.deb```
 
-Start the logstash service
+Start the logstash service:
 
-```su```
+```sudo service logstash start```
 
 Check the service is running with this:
 
 ```sudo service logstash status```
 
+
 ## Install the empow classification plugin
 
-sudo /usr/share/logstash/bin/logstash-plugin install <plugin name>
+```sudo /usr/share/logstash/bin/logstash-plugin install <plugin name>```
 
 
 Now, you can start using logstash....
 
-Example logstash conf file 
+### Example logstash conf file using the plugin
 
-This file uses the empow plugin.
+This example logstash configuration file uses the empow plugin.
 
 ```
 input{
@@ -128,11 +132,9 @@ filter{
 
   empowclassifier {
      classification_url => "https://s0apxz9wik.execute-api.us-east-2.amazonaws.com"
-     classification_username => "assaf"
-     classification_password => "Empow2018!"
+     classification_username => "*****"
+     classification_password => "*********"
   }
-
-
 }
 
 output{
@@ -142,38 +144,37 @@ output{
   }
 }
 ```
+This file has the three components of a logstash config file, input & output sections, and a section defining the filtering actions. In this file, the filter refers to the _empowclassifier_ (the plugin), which in turn access the empow cloud-based classification system. The input listens on UDP port 2055, and the input is to port 1237 on the localhost.
 
-Copy this file to the config file folder & restart logstash
+Copy this file (say, called *empow_example.conf*) to the logstash config file folder & restart logstash. Logstash loads at startup all config files in the config file folder.
 
 
 ```sudo cp empow_example.conf  /etc/logstash/conf.d/```
 
-restart logstash
+Then, restart logstash:
 
 ```sudo service logstash restart```
 
-Open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:
+To test how logstash processes log strings using the example config file, open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:
 
-In the first:
+In the first, enter:
 
 ```nc -luk 1237```
 
-In the second:
+In the second, enter:
 
 ```nc -u 127.0.0.1 2055```
 
 Then enter:
 
-```1:1234```
+```1:1237```
 
 In the first (the listener), the following should appear:
-
-
 
 ```
 {"is_dst_internal":"0","message":"1:1234\n","product_name":"snort","@timestamp":"2019-01-16T14:37:56.889Z","term":{"signature":"1:1234"},"@version":"1","product_type":"IDS","is_src_internal":"1","tags":["_src_internal_wrong_value","_dst_internal_wrong_value"],"empow_intents":[{"attackStage":"Infiltration","isSrcPerformer":true,"tactic":"Full compromise - active patterns"}],"host":"127.0.0.1"}
 ```
-
+This is the logstash output data block for the input string, filtered according to the config file, and with the empow classification fields included, obtained using plugin.
 
 
 ### register with empow to use plugin 
