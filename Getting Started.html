@@ -42,19 +42,19 @@ OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 </code></pre>
 <hr>
 <h2 id="logstash">Logstash</h2>
-<p>su</p>
+<p>We will install the Debian version <code>6.5.4</code>. Check this <a href="https://www.elastic.co/downloads/logstash">page</a> for the link for this (and other download options).</p>
 <h3 id="install-logstash">Install logstash</h3>
 <p><code>wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb</code></p>
 <p><code>sudo dpkg -i logstash-6.5.4.deb</code></p>
-<p>Start the logstash service</p>
-<p><code>su</code></p>
+<p>Start the logstash service:</p>
+<p><code>sudo service logstash start</code></p>
 <p>Check the service is running with this:</p>
 <p><code>sudo service logstash status</code></p>
 <h2 id="install-the-empow-classification-plugin">Install the empow classification plugin</h2>
-<p>sudo /usr/share/logstash/bin/logstash-plugin install </p>
+<p><code>sudo /usr/share/logstash/bin/logstash-plugin install &lt;plugin name&gt;</code></p>
 <p>Now, you can start using logstash…</p>
-<p>Example logstash conf file</p>
-<p>This file uses the empow plugin.</p>
+<h3 id="example-logstash-conf-file-using-the-plugin">Example logstash conf file using the plugin</h3>
+<p>This example logstash configuration file uses the empow plugin.</p>
 <pre><code>input{
   udp{
     port =&gt; 2055
@@ -76,11 +76,9 @@ filter{
 
   empowclassifier {
      classification_url =&gt; "https://s0apxz9wik.execute-api.us-east-2.amazonaws.com"
-     classification_username =&gt; "assaf"
-     classification_password =&gt; "Empow2018!"
+     classification_username =&gt; "*****"
+     classification_password =&gt; "*********"
   }
-
-
 }
 
 output{
@@ -90,20 +88,22 @@ output{
   }
 }
 </code></pre>
-<p>Copy this file to the config file folder &amp; restart logstash</p>
+<p>This file has the three components of a logstash config file, input &amp; output sections, and a section defining the filtering actions. In this file, the filter refers to the <em>empowclassifier</em> (the plugin), which in turn access the empow cloud-based classification system. The input listens on UDP port 2055, and the input is to port 1237 on the localhost.</p>
+<p>Copy this file (say, called <em>empow_example.conf</em>) to the logstash config file folder &amp; restart logstash. Logstash loads at startup all config files in the config file folder.</p>
 <p><code>sudo cp empow_example.conf /etc/logstash/conf.d/</code></p>
-<p>restart logstash</p>
+<p>Then, restart logstash:</p>
 <p><code>sudo service logstash restart</code></p>
-<p>Open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:</p>
-<p>In the first:</p>
+<p>To test how logstash processes log strings using the example config file, open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:</p>
+<p>In the first, enter:</p>
 <p><code>nc -luk 1237</code></p>
-<p>In the second:</p>
+<p>In the second, enter:</p>
 <p><code>nc -u 127.0.0.1 2055</code></p>
 <p>Then enter:</p>
-<p><code>1:1234</code></p>
+<p><code>1:1237</code></p>
 <p>In the first (the listener), the following should appear:</p>
 <pre><code>{"is_dst_internal":"0","message":"1:1234\n","product_name":"snort","@timestamp":"2019-01-16T14:37:56.889Z","term":{"signature":"1:1234"},"@version":"1","product_type":"IDS","is_src_internal":"1","tags":["_src_internal_wrong_value","_dst_internal_wrong_value"],"empow_intents":[{"attackStage":"Infiltration","isSrcPerformer":true,"tactic":"Full compromise - active patterns"}],"host":"127.0.0.1"}
 </code></pre>
+<p>This is the logstash output data block for the input string, filtered according to the config file, and with the empow classification fields included, obtained using plugin.</p>
 <h3 id="register-with-empow-to-use-plugin">register with empow to use plugin</h3>
 <!--- add this later...&#10;-->
 <h3 id="configure-logstash-as-a-service-not-sure-if-this-is-needed">Configure logstash as a service (not sure if this is needed)</h3>
