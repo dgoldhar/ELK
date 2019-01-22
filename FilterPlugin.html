@@ -33,41 +33,44 @@ filter {
 - Value type is: number
 - Default value is
 
+Size of local response cache
+
 ## parked_event_limit_count
 - Value type is: number
 - Default value is
 
-Size of local response cache
-
+Max logs that can wait in memory for a classification from the cloud
 ## parked_event_limit_seconds
 - Value type is: number
 - Default value is
 
-Max logs that can wait in memory for a classification from the cloud
-## product_type_field
+Max time that a log will wait for a classification from the cloud before returned to the stream
+
+
+## product_type
 - Value type is: number
 - Default value is
+Product type. Possible values in this version: IDS, AM. (AM is antimalware)
 
-Max time that a log will wait for a classification from the cloud before returned to the stream
-## product_name_field
+## product_name
 - Value type is: string
 - Default value is
 
-Name of the field containing the product type. Possible values in this version: IDS, AM. (AM is antimalware)
+Product name.
 
-## threat_field
+## threat
 - Value type is: string
 - Default value is
 
 The field containing the terms sent to the classification center
 
-## src_internal_field
+## src_internal
 - Value type is: string
 - Default value is
 
 These field accepts true/false (Boolean) values that describes whether the source or dest are internal in the user's network. (an internal host/mail/user/app)
 
-## dst_internal_field
+## dst_internal
 - Value type is: string
 - Default value is
 
