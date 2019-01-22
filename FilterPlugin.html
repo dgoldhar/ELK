@@ -1,6 +1,6 @@
 # empowclassifier filter plugin
 
-- plugin version
+- Plugin version:
 - Released on:
 - Changelog
 
@@ -11,18 +11,17 @@ For the list of Elastic supported plugins, please consult the [Elastic Support M
 
 # Description
 
+Returns classification information for attacks from the empow classification center, based on information in log strings.
+
 # Configuration Options
 
-The configuration section of the plugin is pretty straightforward,
-
-the user would normally only supply a user and password for the empow cloud:
-
+Include the plugin in the filter section of your logstash config file like this:
  
 ```
 filter {
     empowclassifier {
-        username => "assaf"
-        password => "Empow2018!"
+        username => "*****"
+        password => "*********!"
         }
 }
 ```
@@ -31,45 +30,45 @@ filter {
 # Details
 
 ## cache_size
-- Value type is
+- Value type is: number
 - Default value is
 
 ## parked_event_limit_count
-- Value type is
+- Value type is: number
 - Default value is
 
 Size of local response cache
 
 ## parked_event_limit_seconds
-- Value type is
+- Value type is: number
 - Default value is
 
 Max logs that can wait in memory for a classification from the cloud
 ## product_type_field
-- Value type is
+- Value type is: number
 - Default value is
 
 Max time that a log will wait for a classification from the cloud before returned to the stream
 ## product_name_field
-- Value type is
+- Value type is: string
 - Default value is
 
 Name of the field containing the product type. Possible values in this version: IDS, AM. (AM is antimalware)
 
 ## threat_field
-- Value type is
+- Value type is: string
 - Default value is
 
 The field containing the terms sent to the classification center
 
 ## src_internal_field
-- Value type is
+- Value type is: string
 - Default value is
 
 These field accepts true/false (Boolean) values that describes whether the source or dest are internal in the user's network. (an internal host/mail/user/app)
 
 ## dst_internal_field
-- Value type is
+- Value type is: string
 - Default value is
 
 These field accepts true/false (Boolean) values that describes whether the source or dest are internal in the user's network. (an internal host/mail/user/app)
@@ -91,46 +90,31 @@ These field accepts true/false (Boolean) values that describes whether the sourc
 ## Example
 
 A log may look like this before the classification (in json representation, probably not ideal to show on the logstash manuals):
-
  
 ```
 {
-
-                "product_type": "IDS",
-
-"product_name": "snort",
-
-" threat": { "signature": "1:234" }
-
+	"product_type": "IDS",
+	"product_name": "snort",
+	" threat": { "signature": "1:234" }
 }
 ```
  
-
-And its response would be contain these fields:
-
+After filtering, using the plugin, the response would be contain these fields:
  
 ```
 {
-
     "signatureTactics": [
-
         {
-
             "tactic": "Full compromise - active patterns",
-
             "attackStage": "Infiltration",
-
             "isSrcPerformer": true
-
         }
-
     ]
-
 }
 ```
  
 
-signatureTactics is an array of the tactics classified by empow,
+```signatureTactics``` is an array of the tactics classified by empow.
 
 each result contains the actual tactic,
 
