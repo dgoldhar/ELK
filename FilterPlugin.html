@@ -1,111 +1,107 @@
-# empowclassifier filter plugin
+﻿<!DOCTYPE html>
+<html>
 
-- Plugin version:
-- Released on:
-- Changelog
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FilterPlugin.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
 
-# Getting Help
-For questions about the plugin, open a topic in the [Discuss](http://discuss.elastic.co/) forums. 
-For bugs or feature requests, open an issue in [Github](https://github.com/logstash-plugins/logstash-filter-fingerprint). 
-For the list of Elastic supported plugins, please consult the [Elastic Support Matrix](https://www.elastic.co/support/matrix#matrix_logstash_plugins).
-
-# Description
-
-Returns classification information for attacks from the empow classification center, based on information in log strings.
-
-# Configuration Options
-
-Include the plugin in the filter section of your logstash config file like this:
- 
-```
-filter {
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="empowclassifier-filter-plugin">empowclassifier filter plugin</h1>
+<ul>
+<li>Plugin version:</li>
+<li>Released on:</li>
+<li>Changelog</li>
+</ul>
+<h1 id="getting-help">Getting Help</h1>
+<p>For questions about the plugin, open a topic in the <a href="http://discuss.elastic.co/">Discuss</a> forums.<br>
+For bugs or feature requests, open an issue in <a href="https://github.com/logstash-plugins/logstash-filter-fingerprint">Github</a>.<br>
+For the list of Elastic supported plugins, please consult the <a href="https://www.elastic.co/support/matrix#matrix_logstash_plugins">Elastic Support Matrix</a>.</p>
+<h1 id="description">Description</h1>
+<p>Returns classification information for attacks from the empow classification center, based on information in log strings.</p>
+<h1 id="configuration-options">Configuration Options</h1>
+<p>Include the plugin in the filter section of your logstash config file like this:</p>
+<pre><code>filter {
     empowclassifier {
-        username => "*****"
-        password => "*********!"
+        username =&gt; "*****"
+        password =&gt; "*********!"
         }
 }
-```
-
-
-# Details
-
-## cache_size
-- Value type is: number
-- Default value is
-
-Size of local response cache
-
-## parked_event_limit_count
-- Value type is: number
-- Default value is
-
-Max logs that can wait in memory for a classification from the cloud
-## parked_event_limit_seconds
-- Value type is: number
-- Default value is
-
-Max time that a log will wait for a classification from the cloud before returned to the stream
-
-
-## product_type
-- Value type is: number
-- Default value is
-Product type. Possible values in this version: IDS, AM. (AM is antimalware)
-
-## product_name
-- Value type is: string
-- Default value is
-
-Product name.
-
-## threat
-- Value type is: string
-- Default value is
-
-The field containing the terms sent to the classification center
-
-## src_internal
-- Value type is: string
-- Default value is
-
-These field accepts true/false (Boolean) values that describes whether the source or dest are internal in the user's network. (an internal host/mail/user/app)
-
-## dst_internal
-- Value type is: string
-- Default value is
-
-These field accepts true/false (Boolean) values that describes whether the source or dest are internal in the user's network. (an internal host/mail/user/app)
-
-## tag_on_error
-- Value type is
-- Default value is
-
-['_empow_classifer_error']
-
-## tag_on_timeout
-- Value type is
-- Default value is
-
-[' _empow_classifer_timeout']
-
-# Using the empowclassifier plugin
-
-## Example
-
-A log may look like this before the classification (in json representation, probably not ideal to show on the logstash manuals):
- 
-```
-{
+</code></pre>
+<h1 id="details">Details</h1>
+<h2 id="cache_size">cache_size</h2>
+<ul>
+<li>Value type is: number</li>
+<li>Default value is</li>
+</ul>
+<p>Size of local response cache</p>
+<h2 id="parked_event_limit_count">parked_event_limit_count</h2>
+<ul>
+<li>Value type is: number</li>
+<li>Default value is</li>
+</ul>
+<p>Max logs that can wait in memory for a classification from the cloud</p>
+<h2 id="parked_event_limit_seconds">parked_event_limit_seconds</h2>
+<ul>
+<li>Value type is: number</li>
+<li>Default value is</li>
+</ul>
+<p>Max time that a log will wait for a classification from the cloud before returned to the stream</p>
+<h2 id="product_type">product_type</h2>
+<ul>
+<li>Value type is: number</li>
+<li>Default value is<br>
+Product type. Possible values in this version: IDS, AM. (AM is antimalware)</li>
+</ul>
+<h2 id="product_name">product_name</h2>
+<ul>
+<li>Value type is: string</li>
+<li>Default value is</li>
+</ul>
+<p>Product name.</p>
+<h2 id="threat">threat</h2>
+<ul>
+<li>Value type is: string</li>
+<li>Default value is</li>
+</ul>
+<p>The field containing the terms sent to the classification center</p>
+<h2 id="src_internal">src_internal</h2>
+<ul>
+<li>Value type is: string</li>
+<li>Default value is</li>
+</ul>
+<p>These field accepts true/false (Boolean) values that describes whether the source or dest are internal in the user’s network. (an internal host/mail/user/app)</p>
+<h2 id="dst_internal">dst_internal</h2>
+<ul>
+<li>Value type is: string</li>
+<li>Default value is</li>
+</ul>
+<p>These field accepts true/false (Boolean) values that describes whether the source or dest are internal in the user’s network. (an internal host/mail/user/app)</p>
+<h2 id="tag_on_error">tag_on_error</h2>
+<ul>
+<li>Value type is</li>
+<li>Default value is</li>
+</ul>
+<p>[’_empow_classifer_error’]</p>
+<h2 id="tag_on_timeout">tag_on_timeout</h2>
+<ul>
+<li>Value type is</li>
+<li>Default value is</li>
+</ul>
+<p>[’ _empow_classifer_timeout’]</p>
+<h1 id="using-the-empowclassifier-plugin">Using the empowclassifier plugin</h1>
+<h2 id="example">Example</h2>
+<p>A log may look like this before the classification (in json representation, probably not ideal to show on the logstash manuals):</p>
+<pre><code>{
 	"product_type": "IDS",
 	"product_name": "snort",
 	" threat": { "signature": "1:234" }
 }
-```
- 
-After filtering, using the plugin, the response would be contain these fields:
- 
-```
-{
+</code></pre>
+<p>After filtering, using the plugin, the response would be contain these fields:</p>
+<pre><code>{
     "signatureTactics": [
         {
             "tactic": "Full compromise - active patterns",
@@ -114,15 +110,12 @@ After filtering, using the plugin, the response would be contain these fields:
         }
     ]
 }
-```
- 
+</code></pre>
+<p><code>signatureTactics</code> is an array of the tactics classified by empow.</p>
+<p>each result contains the actual tactic,</p>
+<p>the attack stage empow classified for this log (determined by the tactic and whether the source and dest are within the user’s network),</p>
+<p>and whether the source was the performer or the victim of this attack.</p>
+</div>
+</body>
 
-```signatureTactics``` is an array of the tactics classified by empow.
-
-each result contains the actual tactic,
-
-the attack stage empow classified for this log (determined by the tactic and whether the source and dest are within the user's network),
-
-and whether the source was the performer or the victim of this attack.
-
- 
+</html>
