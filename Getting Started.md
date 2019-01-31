@@ -1,7 +1,7 @@
 # empow logstash classification plugin & ELK module 
-The Elasticsearch stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.
+The ELK stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.
 
-The empow classification plugin extends the functionality of logstash by classifying your log data, using the empow classification center, for attack intent and stage. 
+The empow classification plugin extends the functionality of logstash by classifying your log data, using the empow classification center, for attack intent and attack stage. 
 
 The empow module has preconfigured configurations for the entire ELK stack, that you can use 'out-of-the-box' to ingest, store, and visualize log data from your network devices.
 
@@ -82,7 +82,7 @@ OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)```
 
 ## Logstash
 
-We will install the Debian version ```6.5.4```. Check this [page](https://www.elastic.co/downloads/logstash) for the link for this (and other download options). 
+We will install the Debian version ```6.5.4```. Check this [page](https://www.elastic.co/downloads/logstash) for the link for this package (and other download options). 
 
 ### Install logstash
 
@@ -101,7 +101,7 @@ Check the service is running with this:
 
 ## Install the empow classification plugin
 
-```sudo /usr/share/logstash/bin/logstash-plugin install <plugin name>```
+```sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-empowclassifier```
 
 
 Now, you can start using logstash....
@@ -125,15 +125,14 @@ filter{
   mutate{
     add_field => {"product_type" => "IDS"}
     add_field => {"product_name" => "snort"}
-    rename => {"sig_id" => "[term][signature]"}
+    rename => {"sig_id" => "[threat][signature]"}
     add_field => {"is_src_internal" => 1}
     add_field => {"is_dst_internal" => 0}
   }
 
   empowclassifier {
-     classification_url => "https://s0apxz9wik.execute-api.us-east-2.amazonaws.com"
-     classification_username => "*****"
-     classification_password => "*********"
+     username => "*****"
+     password => "*********"
   }
 }
 
@@ -165,7 +164,7 @@ In the second, enter:
 
 ```nc -u 127.0.0.1 2055```
 
-Then enter:
+Then (still in the second console) enter:
 
 ```1:1237```
 
@@ -181,17 +180,6 @@ This is the logstash output data block for the input string, filtered according 
 <!--- add this later...
 -->
 
-
-
-
-### Configure logstash as a service (not sure if this is needed)
-
-<!--- replace this
-```sudo systemctl start logstash.service```
--->
-
-sudo service start logstash (for ubuntu)
-<hr>
 
 ## Configure logstash
 
@@ -240,25 +228,14 @@ Send the following text to port 2055:
 
 ### Install elasticsearch
 
-wget ...
-sudo dpkg ...
+```wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.6.0.deb```
 
-<!---
-```sudo apt-get update && sudo apt-get install elasticsearch```
--->
-
-
-### Configure elasticsearch as a service
-```
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl enable elasticsearch.service
-```
-sudo service start elasticsearch
+```sudo dpkg -i elasticsearch-6.6.0.deb```
 
 
 ### Start elasticsearch
 
-```sudo systemctl start elasticsearch.service```
+```sudo service  elasticsearch  start```
 
 
 #### Check elasticsearch is running
@@ -298,21 +275,21 @@ You should see something like this returned:
 
 ### Install Kibana
 
-```sudo apt-get update && sudo apt-get install kibana```
+```
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.6.0-amd64.deb
+sudo dpkg -i kibana-6.6.0-amd64.deb
+```
 
-### Configure Kibana as a service
-```
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl enable kibana.service
-```
 
 
 ### Start the Kibana as a service
 
-```sudo systemctl start kibana.service```
+```sudo service  kibana  start```
 
 
 #### Test that Kibana is running
+
+```sudo service kibana status```
 
 Open the following URL in a browser
 
@@ -326,6 +303,12 @@ The Kibana home page should appear.
 ## empow module
 
 Download the empow module
+
+Configure Logstash
+
+Configure the YML file
+Restart Logstash
+
 
 Augment your logstash config file to use the empow module
 
