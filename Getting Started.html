@@ -15,17 +15,18 @@ td,th {border="1")
         </style>
       </head>
     <body>
-        <h1 id="empow-logstash-classification-plugin-elk-module">empow logstash classification plugin &amp; ELK module</h1>
-<p>The ELK stack allows you to ingest log data from many sources, parse and manipulate it, store it in, analyze it, and visualize it. The stack consists of three components, Logstash, for data ingestion and manipulation, Elasticsearch, for storage and analysis of data,and Kibana, to visualize your data.</p>
+        <h1 id="empow-logstash-classification-plugin-elastic-module">empow logstash classification plugin &amp; Elastic module</h1>
+<p>The <a href="https://www.elastic.co/products">Elastic stack</a> allows you to ingest log data from many sources, parse and manipulate it, store it, analyze it, and visualize it. The stack consists of three components, <a href="https://www.elastic.co/products/logstash">Logstash</a>, for data ingestion and manipulation, <a href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a>, for storage and analysis of data, and <a href="https://www.elastic.co/products/kibana">Kibana</a>, to visualize your data.</p>
 <p>The empow classification plugin extends the functionality of logstash by classifying your log data, using the empow classification center, for attack intent and attack stage.</p>
-<p>The empow module has preconfigured configurations for the entire ELK stack, that you can use 'out-of-the-box' to ingest, store, and visualize log data from your network devices.</p>
+<p>The empow module has preconfigured configurations for the entire Elastic stack and plugin, that you can use 'out-of-the-box' to ingest, store, and visualize log data from your network devices.</p>
 <h1 id="supported-platforms">Supported platforms</h1>
-<p>The plugin and module will run on any platform on which the ELK stack is supported.</p>
-<p>We will use Ubuntu 18.04 as the reference platform for this note.</p>
+<p>The plugin and module will run on any platform on which the Elastic stack is supported.</p>
+<p>We will use <a href="http://releases.ubuntu.com/18.04/">Ubuntu 18.04</a> as the reference platform for this note.</p>
 <h1 id="what-you-will-need">What you will need</h1>
 <p>To get started, you will need to install these components:</p>
 <p>Java 8</p>
 <p>Logstash</p>
+<p>empow plugin</p>
 <p>After this, you can add the other elements of the stack, and the empow module:</p>
 <p>Elasticsearch</p>
 <p>Kibana</p>
@@ -53,20 +54,6 @@ OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)
 <pre><code>wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.4.deb 
 sudo dpkg -i logstash-6.5.4.deb
 </code></pre>
-<h3 id="configure-logstash">Configure logstash</h3>
-<p>Configure the logstash.yml file (<code>/etc/logstash/logstash.yml</code>)</p>
-<p>Disable automatic config file loading:
-<code>config.reload.automatic: false</code></p>
-<p>Add the following lines:</p>
-<pre><code>modules:
-- name: empow
-  var.elasticsearch.ssl.enabled: false
-  var.kibana.ssl.enabled: false
-  var.classification.username: &quot;******&quot;
-  var.classification.pass: &quot;******&quot;
-</code></pre>
-<p>Restart Logstash</p>
-<p><code>sudo service logstash restart</code></p>
 <p>Check the service is running with this:</p>
 <p><code>sudo service logstash status</code></p>
 <hr>
@@ -74,17 +61,17 @@ sudo dpkg -i logstash-6.5.4.deb
 <p>The empow classification plugin classifies attack log information to show attack intent and attack stage. It uses the cloud-based emplow classification center.</p>
 <h3 id="install-the-plugin">Install the plugin</h3>
 <p><code>sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-empowclassifier</code></p>
-<p>Install additional plugins :</p>
-<pre><code>sudo /usr/share/logstash/bin/logstash-plugin install  logstash-filter-uuid logstash-filter-translate logstash-filter-prune
-</code></pre>
-<p>Restart the logstash service:</p>
+<h3 id="configure-logstash-for-the-plugin">Configure logstash for the plugin</h3>
+<p>Add this line to the logstash.yml file (<code>/etc/logstash/logstash.yml</code>) to enable automatic loading of  configuration files when they are put in the config directory (<code>/etc/logstash/conf.d/</code>):</p>
+<p><code>config.reload.automatic: true</code></p>
+<p>Restart Logstash:</p>
 <p><code>sudo service logstash restart</code></p>
-<h2 id="create-a-logstash-pipeline-example">Create a logstash pipeline (example)</h2>
-<p>This example illustrates how to create a full logstash pipeline in the <code>/etc/logstash/conf.d/</code> directory to receive logs from a source, filter them, and send them to an output destination. It will also use the empow plugin to classify the attack.</p>
-<p>A logstash <a href="https://www.elastic.co/guide/en/logstash/current/pipeline.html">pipeline</a> consists of three main sections:</p>
-<p><em>input</em> - this determine the way logs are read by logstash.</p>
-<p><em>filter</em> - a set of configuration processing and manipulation of the logs, used to change its structure, extrants, add, remove, and process, fields within the logs</p>
-<p><em>output</em> - determining the destination of the processed logs</p>
+<h3 id="create-a-logstash-pipeline-for-the-plugin-example">Create a logstash pipeline for the plugin (example)</h3>
+<p>This example illustrates how to create a full logstash pipeline in the Logstash config directory (<code>/etc/logstash/conf.d/</code>) to receive logs from a source, filter them using the empow plugin (and other plugins), and send them to an output destination.</p>
+<p>A logstash <a href="https://www.elastic.co/guide/en/logstash/current/pipeline.html">pipeline</a> is a config file that consists of three main sections:</p>
+<p><em>input</em> - this defines the source for logs, and the way they are read by logstash</p>
+<p><em>filter</em> - a set of configuration processing and manipulation action on the logs, used to change its structure, or to extract, add, remove, and process, fields in the logs</p>
+<p><em>output</em> - defines the destination of the processed logs</p>
 <p>Consider, for example, a snort IDS (Intrusion Detection System). As part of the configuration of the IDS, one should direct its logs to logstash. Let's assume that these logs are sent using UDP protocol to port number 2055 (the destination address, the protocol and the port number are part of the snort configuration).
 In this case, configure the input section of the logstash pipeline like this:</p>
 <pre><code>input{
@@ -94,7 +81,7 @@ In this case, configure the input section of the logstash pipeline like this:</p
 }
 </code></pre>
 <p>This configures logstash to receive log sources on UDP port number 2055.</p>
-<p>When logs enter  the pipeline they are proceessed using filters. A typical default snort log structure has the following structure:</p>
+<p>When logs enter the pipeline they are proceessed using filters. A typical default snort log structure has the following structure:</p>
 <pre><code>&lt;NUMBER&gt;MONTH DAY HOUR:MINUTE:SECOND snort[NUMBER]: [SIGNATURE_ID] DESCRIPTION [Priority: 3] {PROTOCOL} SRC_IP:SRC_PORT_NUMBER -&gt; DST_IP:DST_PORT_NUMBER
 </code></pre>
 <p>Some of the field are optional. Here is an example:</p>
@@ -103,9 +90,9 @@ In this case, configure the input section of the logstash pipeline like this:</p
 <p>Logstash has many methods and options to process logs, and in this case we will use the logstash <a href="https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html">grok</a> plugin, which parses unstructured event data into fields similar to regular expression engines.</p>
 <p>This filter configuration extracts the following fields from the snort log using grok:</p>
 <pre><code>filter{
-  grok{
-    match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .\* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
-  }
+ grok{
+  match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .\* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
+ }
 }
 </code></pre>
 <p>where:</p>
@@ -113,86 +100,83 @@ In this case, configure the input section of the logstash pipeline like this:</p
 <p><em>sig_id</em> - the threat signature id (in the format NUMBER:NUMBER, where the third number is omitted)</p>
 <p><em>src_addr</em> - the source IP address</p>
 <p><em>dst_addr</em> - the destination IP address</p>
-<p>In order to use the empow classification plugin, we add the following fields:
-<em>product_type</em> (set to IDS in this example)
-<em>product_name</em> (set to snort in this example)
-<em>threat</em> - a JSON structure with the  threat information (signature_id for IDS, or hash and malware name for Anti Virus or Anti Malware)</p>
+<p>In order to use the empow classification plugin, we add the following fields:</p>
+<p><em>product_type</em> (set to IDS in this example)</p>
+<p><em>product_name</em> (set to snort in this example)</p>
+<p><em>threat</em> - a JSON structure with the threat information (signature_id for IDS, or hash and malware name for Anti Virus or Anti Malware)</p>
 <p>We will also use the logstash <a href="https://www.elastic.co/guide/en/logstash/current/plugins-filters-mutate.html">mutate</a> and <a href="https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html">grok</a> plugins, as follows:</p>
 <pre><code>filter{
-  grok{
-    match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .\* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
-  }
-  mutate{
-     add_field =&gt; {&quot;product_type&quot; =&gt; &quot;IDS&quot; &quot;product_name&quot; =&gt; &quot;snort&quot;}
-     add_field =&gt; {&quot;[threat][signature]&quot; =&gt; &quot;%{sig_id}&quot;}     
-  }
+ grok{
+  match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
+ }
+ mutate{
+   add_field =&gt; {&quot;product_type&quot; =&gt; &quot;IDS&quot; &quot;product_name&quot; =&gt; &quot;snort&quot;}
+   add_field =&gt; {&quot;[threat][signature]&quot; =&gt; &quot;%{sig_id}&quot;}   
+ }
 }
 </code></pre>
-<p>Now, we will add the empowclassier plugin to the pipeline, and set the classification center username and password (link to the registration page). Note, the empow classification plugin has many other configuration options</p>
+<p>Now, we will add the <em>empowclassifier</em> plugin to the pipeline, and set the classification center username and password (link to the registration page). Note, the plugin has more configuration options, beyond those described here.</p>
 <pre><code>filter{
-  grok{
-    match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .\* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
-  }
+ grok{
+  match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
+ }
 
-  mutate{
-     add_field =&gt; {&quot;product_type&quot; =&gt; &quot;IDS&quot; &quot;product_name&quot; =&gt; &quot;snort&quot;}
-     add_field =&gt; {&quot;[threat][signature]&quot; =&gt; &quot;%{sig_id}&quot;}     
-  }
-  empowclassifier {
-     username =&gt; &quot;*******&quot; # replace with your username
-     password =&gt; &quot;*******&quot;  # replace with your password
-  }
+ mutate{
+   add_field =&gt; {&quot;product_type&quot; =&gt; &quot;IDS&quot; &quot;product_name&quot; =&gt; &quot;snort&quot;}
+   add_field =&gt; {&quot;[threat][signature]&quot; =&gt; &quot;%{sig_id}&quot;}   
+ }
+ empowclassifier {
+   username =&gt; &quot;*******&quot; # replace with your username
+   password =&gt; &quot;*******&quot; # replace with your password
+ }
 }
 </code></pre>
-<p>Using this pipeline, the empowclassifier plugin will generate new fields containing the classification results from the snort logs (or error fields)</p>
-<p>A valid response will contain a JSON ,<code>empow_classification_response</code>, that includes an <code>intents</code> field which includes, containing other things, the tactics and the attack stage of the attack (link to the page explaining this terms).</p>
+<p>Using this pipeline, the <em>empowclassifier</em> plugin will generate new fields containing the classification results from the snort logs (or error fields if there are problems).</p>
+<p>A valid response will contain a JSON block, <code>empow_classification_response</code>, that includes an <code>intents</code> field. This field includes, among other things, the tactics and the attack stage of the attack (link to the page explaining this terms).</p>
 <p>To complete the pipeline configuration, we will setup the <a href="https://www.elastic.co/guide/en/logstash/current/pipeline.html#_outputs">output</a> section. This determines where the filtered logs will be sent. Logs can be sent to many destinations, including databases, elastic nodes, etc.
-In our example we will send the log by udp to localhost port 1237. The output section is then:</p>
+In our example, we will send the log by UDP to localhost port 1237. The output section is then:</p>
 <pre><code>output{
-  udp{
-   host =&gt; &quot;127.0.0.1&quot;
-   port =&gt; 1237
-  }
+ udp{
+  host =&gt; &quot;127.0.0.1&quot;
+  port =&gt; 1237
+ }
 }
 </code></pre>
-<p>The entire pipline configuration file now looks like this:</p>
+<p>The entire pipeline configuration file now looks like this:</p>
 <details>
 <pre><code>input{
-  udp{
-    port =&gt; 2055
-  }
+ udp{
+  port =&gt; 2055
+ }
 }
 
 filter{
-  grok{
-    match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .\* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
-  }
+ grok{
+  match =&gt; {&quot;message&quot; =&gt; &quot;%{NUMBER}\&gt;%{SYSLOGTIMESTAMP:date} snort\[%{NUMBER}\]: \[(?&lt;sig_id&gt;%{NUMBER}:%{NUMBER}):%{NUMBER}\] .\* %{IP:src_addr}(:%{NUMBER})? -&gt; %{IP:dst_addr}(:%{NUMBER})?&quot;}
+ }
 
-  mutate{
-     add_field =&gt; {&quot;product_type&quot; =&gt; &quot;IDS&quot; &quot;product_name&quot; =&gt; &quot;snort&quot;}
-     add_field =&gt; {&quot;[threat][signature]&quot; =&gt; &quot;%{sig_id}&quot;}     
-  }
-  empowclassifier {
-     username =&gt; &quot;*******&quot;  # replace with your username
-     password =&gt; &quot;*******&quot;  # replace with your password
-  }
+ mutate{
+   add_field =&gt; {&quot;product_type&quot; =&gt; &quot;IDS&quot; &quot;product_name&quot; =&gt; &quot;snort&quot;}
+   add_field =&gt; {&quot;[threat][signature]&quot; =&gt; &quot;%{sig_id}&quot;}   
+ }
+ empowclassifier {
+   username =&gt; &quot;*******&quot; # replace with your username
+   password =&gt; &quot;*******&quot; # replace with your password
+ }
 }
 
 output{
-  udp{
-   host =&gt; &quot;127.0.0.1&quot;
-   port =&gt; 1237
-  }
+ udp{
+  host =&gt; &quot;127.0.0.1&quot;
+  port =&gt; 1237
+ }
 }
 </code></pre>
 </details>
-<p>This file has the three components of a logstash config file: input &amp; output sections, and a section defining the filtering actions. In this file, the filter refers to the <em>empowclassifier</em> (the plugin), which in turn accesses the empow cloud-based classification system. The input listens on UDP port 2055, and the output is to port 1237 on the localhost.</p>
-<p>Add this line to the <code>logstash.yml</code> file, to enable automatic reload of new configuration files when they are put in the logstash configuration folder (<code>/etc/logstash/conf.d/</code>):</p>
-<pre><code>config.reload.automatic: true
-</code></pre>
-<p>Copy the pipeline  file (rename it <em>snort_empow_example.conf</em>, say) to the logstash config file folder <code>/etc/logstash/conf.d/</code>, and wait a few seconds for logstash to it.</p>
+<p>This file has the three components of a logstash config file: input &amp; output sections, and a section defining the filtering actions. In this file, the filter refers to the <em>empowclassifier</em> (the plugin), which in turn accesses the empow cloud-based classification system. The input listens on UDP port 2055, and the output is sent to port 1237 on the localhost.</p>
+<p>Copy the pipeline file (rename it <em>snort_empow_example.conf</em>, say) to the logstash config file folder (<code>/etc/logstash/conf.d/</code>), and wait a few seconds for logstash to load it.</p>
 <p><code>sudo cp empow_example.conf /etc/logstash/conf.d/</code></p>
-<p>If it doesn't load, restart logstash (all config files are loaded when logstash starts):</p>
+<p>If it doesn't load, restart logstash (logstash will load all config files it restarts):</p>
 <p><code>sudo service logstash restart</code></p>
 <p>To test how logstash processes log strings using this example config file, open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:</p>
 <p>In the first, enter:</p>
@@ -210,6 +194,10 @@ output{
 <!--- add this later...
 -->
 <hr>
+<h2 id="use-the-empow-module">Use the empow module</h2>
+<p>The empow Elastic classification module is preconfigured to provide a simple configration of Logstash, Elasticsearch, and Kibana that can read security logs from many products and services, process them,  enrich them using the <em>empowclassifier</em> plugin, store them in Elasticsearch, and anlyze them using a set of preconfigured Kibana visualizations and dashboards.</p>
+<p>In order to use the empow module, download and install the module (in the future it will be available on Elastic as an open source module), install additional logstash plugins (used by the preconfigured empow module logstash pipeline), and install both Kibana and Elasticsearch.</p>
+<p>In this note, we assume that the entire Elastic stack (Logstash, Elasticsearch, and Kibana) is installed on the same node. If you install them on different nodes, or deploy a cluster of elasticsearch nodes, further configuration is required, that is not covered by this note.</p>
 <h2 id="elasticsearch">Elasticsearch</h2>
 <h3 id="install-elasticsearch">Install elasticsearch</h3>
 <p><code>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.6.0.deb</code></p>
@@ -223,21 +211,21 @@ output{
 <p>You should see something like this returned:</p>
 <details>
 <pre><code>{
-  &quot;name&quot; : &quot;Cp8oag6&quot;,
-  &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
-  &quot;cluster_uuid&quot; : &quot;AT69_T_DTp-1qgIJlatQqA&quot;,
-  &quot;version&quot; : {
-    &quot;number&quot; : &quot;6.5.4&quot;,
-    &quot;build_flavor&quot; : &quot;default&quot;,
-    &quot;build_type&quot; : &quot;zip&quot;,
-    &quot;build_hash&quot; : &quot;f27399d&quot;,
-    &quot;build_date&quot; : &quot;2016-03-30T09:51:41.449Z&quot;,
-    &quot;build_snapshot&quot; : false,
-    &quot;lucene_version&quot; : &quot;7.5.0&quot;,
-    &quot;minimum_wire_compatibility_version&quot; : &quot;1.2.3&quot;,
-    &quot;minimum_index_compatibility_version&quot; : &quot;1.2.3&quot;
-  },
-  &quot;tagline&quot; : &quot;You Know, for Search&quot;
+ &quot;name&quot; : &quot;Cp8oag6&quot;,
+ &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
+ &quot;cluster_uuid&quot; : &quot;AT69_T_DTp-1qgIJlatQqA&quot;,
+ &quot;version&quot; : {
+  &quot;number&quot; : &quot;6.5.4&quot;,
+  &quot;build_flavor&quot; : &quot;default&quot;,
+  &quot;build_type&quot; : &quot;zip&quot;,
+  &quot;build_hash&quot; : &quot;f27399d&quot;,
+  &quot;build_date&quot; : &quot;2016-03-30T09:51:41.449Z&quot;,
+  &quot;build_snapshot&quot; : false,
+  &quot;lucene_version&quot; : &quot;7.5.0&quot;,
+  &quot;minimum_wire_compatibility_version&quot; : &quot;1.2.3&quot;,
+  &quot;minimum_index_compatibility_version&quot; : &quot;1.2.3&quot;
+ },
+ &quot;tagline&quot; : &quot;You Know, for Search&quot;
 }
 </code></pre>
 </details>
@@ -247,10 +235,10 @@ output{
 <pre><code>wget https://artifacts.elastic.co/downloads/kibana/kibana-6.6.0-amd64.deb
 sudo dpkg -i kibana-6.6.0-amd64.deb
 </code></pre>
-<h3 id="configure-kibana">Configure kibana</h3>
-<p>Add the following line to the kibana configuration file (<code>/etc/kibana/kibana.yml</code> )  to enable remote access to kibana:</p>
+<h3 id="configure-kibana">Configure Kibana</h3>
+<p>Add the following line to the kibana configuration file (<code>/etc/kibana/kibana.yml</code> ) to enable remote access to kibana:</p>
 <p><code>server.host: &quot;0.0.0.0&quot;</code></p>
-<p>Note: if an the entry for <code>server.host</code> alreay exists, change it  to <code>&quot;0.0.0.0&quot;</code></p>
+<p>Note: if an the entry for <code>server.host</code> alreay exists, change it to <code>&quot;0.0.0.0&quot;</code></p>
 <h3 id="start-the-kibana-as-a-service">Start the Kibana as a service</h3>
 <p><code>sudo service kibana start</code></p>
 <h4 id="test-that-kibana-is-running">Test that Kibana is running</h4>
@@ -259,13 +247,29 @@ sudo dpkg -i kibana-6.6.0-amd64.deb
 <p><code>http://localhost:5601</code></p>
 <p>The Kibana home page should appear.</p>
 <hr>
-<h2 id="empow-module">empow module</h2>
+<h2 id="empow-classification-module">empow classification module</h2>
 <h3 id="download-the-empow-module">Download the empow module</h3>
-<p>Download and install the empow module (empow_classification_module.tar)</p>
+<p>Download and install the empow classification module (empow_classification_module.tar)</p>
 <pre><code>cd /usr/share/logstash/modules
 sudo wget &quot;.../empow_classification_module.tar
 sudo tar xvf empow_classification_module.tar
 </code></pre>
+<h3 id="configure-logstash">Configure Logstash</h3>
+<p>Add this line to to <code>logstash.yml</code> to disable automatic loading of configuration files (this conflicts with the module):</p>
+<p><code>config.reload.automatic: true</code></p>
+<p>Add the following lines:</p>
+<pre><code>modules:
+- name: empow
+ var.elasticsearch.ssl.enabled: false
+ var.kibana.ssl.enabled: false
+ var.classification.username: &quot;******&quot;
+ var.classification.pass: &quot;******&quot;
+</code></pre>
+<p>Install additional plugins, used by the module:</p>
+<pre><code>sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-uuid logstash-filter-translate logstash-filter-prune
+</code></pre>
+<p>Restart the logstash service:</p>
+<p><code>sudo service logstash restart</code></p>
 
     </body>
 </html>
