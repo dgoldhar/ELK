@@ -243,6 +243,8 @@ output{
 
 The entire pipline configuration file now looks like this:
 
+<details>
+
 ```
 input{
   udp{
@@ -272,7 +274,7 @@ output{
   }
 }
 ```
-
+</details>
 
 This file has the three components of a logstash config file: input & output sections, and a section defining the filtering actions. In this file, the filter refers to the _empowclassifier_ (the plugin), which in turn accesses the empow cloud-based classification system. The input listens on UDP port 2055, and the output is to port 1237 on the localhost.
 
@@ -319,6 +321,7 @@ This is the logstash output data block for the input string, filtered according 
 -->
 
 
+<hr>
 
 ## Elasticsearch
 
@@ -366,6 +369,7 @@ You should see something like this returned:
 ```
 </details>
 
+<hr>
 
 ## Kibana
 
@@ -405,6 +409,7 @@ Open the following URL in a browser
 
 The Kibana home page should appear.
 
+<hr>
 
 ## empow module
 
