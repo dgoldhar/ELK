@@ -16,7 +16,7 @@
     <h1>empowclassifier filter plugin</h1>
     <div class="details">
       <span id="author" class="author">empow</span><br>
-      <span id="revnumber">version 0.1 January 2019</span>
+      <span id="revnumber">version 0.1 February 2019</span>
     </div>
   </div>
   <div id="content">
@@ -83,6 +83,62 @@
       <h2 id="_details">Details</h2>
       <div class="sectionbody">
         <div class="sect2">
+          <h3 id="_username">username</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: string</p>
+              </li>
+              <li>
+                <p>Default value: ""</p>
+              </li>
+              <li>
+                <p>Required: true</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>The username (typically your email address), to access the classification
+              center</p>
+          </div>
+        </div>
+        <div class="sect2">
+          <h3 id="_password">password</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: string</p>
+              </li>
+              <li>
+                <p>Default value: ""</p>
+              </li>
+              <li>
+                <p>Required: true:</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>The password to access the classification center</p>
+          </div>
+        </div>
+        <div class="sect2">
+          <h3 id="_authentication_hash">authentication_hash</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: string</p>
+              </li>
+              <li>
+                <p>Default value: "131n94ktfg7lj8hlpnnbkuiql1"</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>Set this value only if using the complete empow stack; leave unchanged
+              if using the empow Elastic open source plugin or module</p>
+          </div>
+        </div>
+        <div class="sect2">
           <h3 id="_cache_size">cache_size</h3>
           <div class="ulist">
             <ul>
@@ -99,7 +155,7 @@
           </div>
         </div>
         <div class="sect2">
-          <h3 id="_pending_request_limit">pending_request_limit</h3>
+          <h3 id="_max_pending_requests">max_pending_requests</h3>
           <div class="ulist">
             <ul>
               <li>
@@ -113,10 +169,94 @@
           <div class="paragraph">
             <p>Max number of requests pending response from the classification center
               === pending_request_timeout - Value type is: number - Default value
-              isL 60 (seconds)</p>
+              is: 60 (seconds)</p>
           </div>
           <div class="paragraph">
             <p>Timeout for response from classification center (seconds)</p>
+          </div>
+        </div>
+        <div class="sect2">
+          <h3 id="_max_classification_center_workers">max_classification_center_workers</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: number</p>
+              </li>
+              <li>
+                <p>Default value is: 5</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>Maximum number of concurrent threads (workers) classifying logs using
+              the classification center</p>
+          </div>
+        </div>
+        <div class="sect2">
+          <h3 id="_bulk_request_size">bulk_request_size</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: number</p>
+              </li>
+              <li>
+                <p>Default value is: 50</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>Classification center bulk request size (requests)</p>
+          </div>
+        </div>
+        <div class="sect2">
+          <h3 id="_bulk_request_interval">bulk_request_interval</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: number</p>
+              </li>
+              <li>
+                <p>Default value is: 2</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>Time (seconds) to wait for batch to fill on classifciation center, before
+              querying for the response</p>
+          </div>
+        </div>
+        <div class="sect2">
+          <h3 id="_max_query_retries">max_query_retries</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: number</p>
+              </li>
+              <li>
+                <p>Default value is: 5</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>Max number of classification center request retries</p>
+          </div>
+        </div>
+        <div class="sect2">
+          <h3 id="_time_between_queries">time_between_queries</h3>
+          <div class="ulist">
+            <ul>
+              <li>
+                <p>Value type is: number</p>
+              </li>
+              <li>
+                <p>Default value is: 10</p>
+              </li>
+            </ul>
+          </div>
+          <div class="paragraph">
+            <p>Time (seconds) to wait between queries to the classification center for
+              the final response to a request; the classification center will return
+              an 'in-progress' response if queried before the final response is ready</p>
           </div>
         </div>
         <div class="sect2">
@@ -127,12 +267,27 @@
                 <p>Value type is: number</p>
               </li>
               <li>
-                <p>Default value is</p>
+                <p>Default value is: 'product_type'</p>
               </li>
             </ul>
           </div>
           <div class="paragraph">
-            <p>The name of the product type field in the log.</p>
+            <p>The name of the product type field in the log</p>
+          </div>
+          <div class="paragraph">
+            <p>Example: If the log used <em>log_type</em> for the product type, configure
+              the plugin like this:</p>
+          </div>
+          <div class="listingblock">
+            <div class="content">
+              <pre> filter {
+  empowclassifier {
+    username =&gt; "happy"
+    password =&gt; "festivus"
+    product_type_field =&gt; "log_type"
+   }
+  }</pre>
+            </div>
           </div>
         </div>
         <div class="sect2">
@@ -143,23 +298,38 @@
                 <p>Value type is: string</p>
               </li>
               <li>
-                <p>Default value is</p>
+                <p>Default value is: 'product_name'</p>
               </li>
             </ul>
           </div>
           <div class="paragraph">
-            <p>The name of the product name field in the log.</p>
+            <p>The name of the product name field in the log</p>
+          </div>
+          <div class="paragraph">
+            <p>Example: If the log used <em>product</em> for the product name, configure
+              the plugin like this:</p>
+          </div>
+          <div class="listingblock">
+            <div class="content">
+              <pre> filter {
+   empowclassifier {
+   username =&gt; "happy"
+   password =&gt; "festivus"
+   product_type_field =&gt; "product"
+   }
+ }</pre>
+            </div>
           </div>
         </div>
         <div class="sect2">
-          <h3 id="_threat">threat</h3>
+          <h3 id="_threat_field">threat_field</h3>
           <div class="ulist">
             <ul>
               <li>
                 <p>Value type is: string</p>
               </li>
               <li>
-                <p>Default value is</p>
+                <p>Default value is: 'threat'</p>
               </li>
             </ul>
           </div>
@@ -176,7 +346,7 @@
                 <p>Value type is: boolean</p>
               </li>
               <li>
-                <p>Default value is</p>
+                <p>Default value is: 'is_src_internal'</p>
               </li>
             </ul>
           </div>
@@ -193,45 +363,13 @@
                 <p>Value type is: boolean</p>
               </li>
               <li>
-                <p>Default value is</p>
+                <p>Default value is: 'is_dst_internal'</p>
               </li>
             </ul>
           </div>
           <div class="paragraph">
-            <p>Indicates whether the dest fieldis internal to the user&#8217;s network
+            <p>Indicates whether the dest field is internal to the user&#8217;s network
               (for example, an internal host/mail/user/app)</p>
-          </div>
-        </div>
-        <div class="sect2">
-          <h3 id="_tag_on_error">tag_on_error</h3>
-          <div class="ulist">
-            <ul>
-              <li>
-                <p>Value type is</p>
-              </li>
-              <li>
-                <p>Default value is</p>
-              </li>
-            </ul>
-          </div>
-          <div class="paragraph">
-            <p>('_empow_classifer_error')</p>
-          </div>
-        </div>
-        <div class="sect2">
-          <h3 id="_tag_on_timeout">tag_on_timeout</h3>
-          <div class="ulist">
-            <ul>
-              <li>
-                <p>Value type is</p>
-              </li>
-              <li>
-                <p>Default value is</p>
-              </li>
-            </ul>
-          </div>
-          <div class="paragraph">
-            <p>(' _empow_classifer_timeout')</p>
           </div>
         </div>
       </div>
@@ -242,8 +380,7 @@
         <div class="sect2">
           <h3 id="_example">Example</h3>
           <div class="paragraph">
-            <p>A log may look like this before the classification (in json representation,
-              probably not ideal to show on the logstash manuals):</p>
+            <p>A log may look like this before the classification (in json form):</p>
           </div>
           <div class="listingblock">
             <div class="content">
@@ -276,14 +413,10 @@
               empow.</p>
           </div>
           <div class="paragraph">
-            <p>each result contains the actual tactic,</p>
-          </div>
-          <div class="paragraph">
-            <p>the attack stage empow classified for this log (determined by the tactic
-              and whether the source and dest are within the user&#8217;s network),</p>
-          </div>
-          <div class="paragraph">
-            <p>and whether the source was the performer or the victim of this attack.</p>
+            <p>each result contains the actual tactic, the attack stage empow classified
+              for this log (determined by the tactic and whether the source and dest
+              are within the user&#8217;s network), and whether the source was the
+              performer or the victim of this attack.</p>
           </div>
         </div>
       </div>

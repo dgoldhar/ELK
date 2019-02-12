@@ -1,6 +1,6 @@
 = empowclassifier filter plugin
 empow
-v0.1 January 2019
+v0.1 February 2019
 
 - Plugin version:
 - Released on:
@@ -31,71 +31,138 @@ In the input section, connect with your log sources, and in the output section, 
 
 == Details
 
+=== username
+- Value type is: string
+- Default value: ""
+- Required: true
+
+The username (typically your email address), to access the classification center
+
+=== password
+- Value type is: string
+- Default value: ""
+- Required: true: 
+
+The password to access the classification center
+
+=== authentication_hash
+- Value type is: string
+- Default value: "131n94ktfg7lj8hlpnnbkuiql1"
+
+Set this value only if using the complete empow stack; leave unchanged if using the empow Elastic open source plugin or module
+
+
 === cache_size
 - Value type is: number
 - Default value is: 10000
 
 The number of responses cached locally.
 
-=== pending_request_limit
+=== max_pending_requests
 - Value type is: number
 - Default value is: 10000
 
 Max number of requests pending response from the classification center 
 === pending_request_timeout
 - Value type is: number
-- Default value isL 60 (seconds)
+- Default value is: 60 (seconds)
 
 Timeout for response from classification center (seconds)
+
+=== max_classification_center_workers
+- Value type is: number
+- Default value is: 5
+
+Maximum number of concurrent threads (workers) classifying logs using the classification center
+
+
+=== bulk_request_size
+- Value type is: number
+- Default value is: 50
+
+Classification center bulk request size (requests)
+
+
+=== bulk_request_interval
+- Value type is: number
+- Default value is: 2
+
+Time (seconds) to wait for batch to fill on classifciation center, before querying for the response
+
+
+=== max_query_retries
+- Value type is: number
+- Default value is: 5
+
+Max number of classification center request retries
+
+
+=== time_between_queries
+- Value type is: number
+- Default value is: 10
+
+Time (seconds) to wait between queries to the classification center for the final response to a request; the classification center will return an 'in-progress' response if queried before the final response is ready
 
 
 === product_type_field
 - Value type is: number
-- Default value is
+- Default value is: 'product_type'
 
-The name of the product type field in the log.
+The name of the product type field in the log
+
+Example:
+If the log used _log_type_ for the product type, configure the plugin like this:
+----
+ filter {
+  empowclassifier {
+    username => "happy"
+    password => "festivus"
+    product_type_field => "log_type"
+   }
+  }
+----
 
 === product_name_field
 - Value type is: string
-- Default value is
+- Default value is: 'product_name'
 
-The name of the product name field in the log.
+The name of the product name field in the log
 
-=== threat
+Example:
+If the log used _product_ for the product name, configure the plugin like this:
+----
+ filter {
+   empowclassifier {
+   username => "happy"
+   password => "festivus"
+   product_type_field => "product"
+   }
+ }
+----
+
+=== threat_field
 - Value type is: string
-- Default value is
+- Default value is: 'threat'
 
 The name of the field containing the terms sent to the classification center
 
 === src_internal
 - Value type is: boolean
-- Default value is
+- Default value is: 'is_src_internal'
 
 Indicates whether the source field is internal to the user's network (for example, an internal host/mail/user/app)
 
 === dst_internal
 - Value type is: boolean
-- Default value is
+- Default value is: 'is_dst_internal'
 
-Indicates whether the dest fieldis internal to the user's network (for example, an internal host/mail/user/app)
-
-=== tag_on_error
-- Value type is
-- Default value is
-
-('_empow_classifer_error')
-
-=== tag_on_timeout
-- Value type is
-- Default value is
-
-(' _empow_classifer_timeout')
+Indicates whether the dest field is internal to the user's network (for example, an internal host/mail/user/app)
 
 == Using the empowclassifier plugin
 
 === Example
 
-A log may look like this before the classification (in json representation, probably not ideal to show on the logstash manuals):
+A log may look like this before the classification (in json form):
  
 ```
 {
@@ -122,10 +189,5 @@ After filtering, using the plugin, the response would be contain these fields:
 
 `signatureTactics` is an array of the tactics classified by empow.
 
-each result contains the actual tactic,
+each result contains the actual tactic, the attack stage empow classified for this log (determined by the tactic and whether the source and dest are within the user's network), and whether the source was the performer or the victim of this attack.
 
-the attack stage empow classified for this log (determined by the tactic and whether the source and dest are within the user's network),
-
-and whether the source was the performer or the victim of this attack.
-
- 
