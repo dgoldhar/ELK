@@ -34,11 +34,12 @@ Kibana
 
 empow module
 
-<hr>
+
+--- 
 
 # Get started with logstash and the empow plugin
 
-The procedures below use _dpkg_ on Ubuntu. Other methods to acquire and install packages can also be used (we have references to relevant sites for packages and methods)
+The procedures below use _dpkg_ on Ubuntu to install the Elastic stack. Other methods to acquire and install packages can also be used (refer to [Elastic](https://www.elastic.co/downloads))
 
 
 ## Java 
@@ -53,7 +54,7 @@ Java must be installed before installing logstash. Run this commmand to check if
 ### Install Java 8
 
 
-```sudo apt install openjdk-8-jdk```
+```sudo apt-get install openjdk-8-jdk```
 
 Confirm the installation
 
@@ -87,7 +88,8 @@ Check the service is running with this:
 <hr>
 
 ## empow classification plugin
-The empow classification plugin classifies attack log information to show attack intent and attack stage. It uses the cloud-based emplow classification center.
+
+The empow classification plugin enriches logs by adding information to show attack intent and attack stage, using emplow classification technology.
 
 ### Install the plugin
 
@@ -107,7 +109,8 @@ Restart Logstash:
 
 ### Create a logstash pipeline for the plugin (example)
 
-This example illustrates how to create a full logstash pipeline in the Logstash config directory (```/etc/logstash/conf.d/```) to receive logs from a source, filter them using the empow plugin (and other plugins), and send them to an output destination. 
+
+This example illustrates how to create a full logstash pipeline that uses the empow plugin. A pipeline is a logstash configuration that receives logs from a source, filters them using the empow plugin (and other plugins), and then sends them to an output destination. 
 
 
 A logstash [pipeline](https://www.elastic.co/guide/en/logstash/current/pipeline.html) is a config file that consists of three main sections:
@@ -256,14 +259,12 @@ output{
 
 This file has the three components of a logstash config file: input & output sections, and a section defining the filtering actions. In this file, the filter refers to the _empowclassifier_ (the plugin), which in turn accesses the empow cloud-based classification system. The input listens on UDP port 2055, and the output is sent to port 1237 on the localhost.
 
+[//]:# (RamiC: we may put some words and a reference to our registration page)
 
 Copy the pipeline file (rename it *snort_empow_example.conf*, say) to the logstash config file folder (```/etc/logstash/conf.d/```), and wait a few seconds for logstash to load it.
 
-```sudo cp empow_example.conf /etc/logstash/conf.d/```
+```sudo cp snort_empow_example.conf /etc/logstash/conf.d/```
 
- If it doesn't load, restart logstash (logstash will load all config files it restarts):
-
-```sudo service logstash restart```
 
 To test how logstash processes log strings using this example config file, open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:
 
@@ -295,11 +296,14 @@ This is the logstash output data block for the input string, filtered according 
 <hr>
 
 ## Use the empow module
-The empow Elastic classification module is preconfigured to provide a simple configration of Logstash, Elasticsearch, and Kibana that can read security logs from many products and services, process them,  enrich them using the _empowclassifier_ plugin, store them in Elasticsearch, and anlyze them using a set of preconfigured Kibana visualizations and dashboards.
+
+The empow Elastic classification module is a preconfigured Elastic stack module that includes  a simple configration of Logstash, Elasticsearch, and Kibana that can read security logs from many products and services, process them,  enrich them using the _empowclassifier_ plugin, store them in Elasticsearch, and anlyze them using a set of preconfigured Kibana visualizations and dashboards.
+
+[//]:# (RamiC: later, I'll give you a download link)
 
 In order to use the empow module, download and install the module (in the future it will be available on Elastic as an open source module), install additional logstash plugins (used by the preconfigured empow module logstash pipeline), and install both Kibana and Elasticsearch.
 
-In this note, we assume that the entire Elastic stack (Logstash, Elasticsearch, and Kibana) is installed on the same node. If you install them on different nodes, or deploy a cluster of elasticsearch nodes, further configuration is required, that is not covered by this note.
+In this guide, we assume that the entire Elastic stack (Logstash, Elasticsearch, and Kibana) is installed on the same node. If you install them on different nodes, or deploy a cluster of elasticsearch nodes, further configuration is required, that is not covered here.
 
 
 ## Elasticsearch
@@ -359,13 +363,13 @@ sudo dpkg -i kibana-6.6.0-amd64.deb
 ```
 
 ### Configure Kibana
-Add the following line to the kibana configuration file (```/etc/kibana/kibana.yml``` ) to enable remote access to kibana:
+
+Add the following line to the kibana configuration file (```/etc/kibana/kibana.yml``` ) to enable remote access to kibana (skip this step if you are running your browser on the same host as Kibana):
 
 ```server.host: "0.0.0.0"```
 
 
-
-Note: if an the entry for ```server.host``` alreay exists, change it to ```"0.0.0.0"```
+Note: if an entry for ```server.host``` alreay exists, change it to ```"0.0.0.0"```
 
 ### Start the Kibana as a service
 
@@ -382,7 +386,7 @@ Open the following URL in a browser
 ```http://localhost:5601```
 
 
-The Kibana home page should appear.
+You should see the Kibana home page.
 
 <hr>
 
@@ -415,9 +419,39 @@ modules:
 Install additional plugins, used by the module:
 
 ```
-sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-uuid logstash-filter-translate logstash-filter-prune
+sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate logstash-filter-prune
 ```
 
  Restart the logstash service:
 
 ```sudo service logstash restart```
+
+
+### Configure the empow Elastic stack module 
+As with any Elastic stack [module](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules.html), the empow module can be configured using variables that can be added to the YML configuration file, or included in the command line 
+
+####  Common Elastic module configuration variables (partial list)
+
+
+|name		| type		|  values		|default|
+|:---	|:---:	|:---:	|:---|
+var.elasticsearch.ssl.enabled	| boolean	| true/false	 | true  	
+var.kibana.ssl.enabled		| boolean	| true/false	 | true
+var.elasticsearch.username	| string	| 	   	 | ""
+var.elasticsearch.password	| string	|		 | ""
+var.elasticsearch.index_suffix  | string	|		 | "%{+YYYY.MM.dd}"
+var.elasticsearch.hosts		| list		| 		 | ["localhost:9200"]
+
+
+#### empow module configuration variables
+
+|name| type	|  values | default |description|
+|---|:---:|:---:|:---|---|
+var.input.ids.snort.port	| integer	| 1-65535  	  | 10514   | listening port for snort ids logs
+var.input.ids.paloalto.port	| integer	| 1-65535  	  | 10515   | listening port for paloalto ids logs
+var.input.ids.fortinet.port	| integer	| 1-65535  	  | 10516   | listening port for fortinet ids logs
+var.input.av.symantec.port	| integer	| 1-65535  	  | 10520   | listening port for symantec av logs
+var.input.av.trendmicro.port	| integer	| 1-65535  	  | 10521   | listening port for trendmicro antivirus logs
+var.internal.networks		| list		| 		  | []	    | list of internal networks; example: _'["10.0.1.0/24", "11.68.0.0/16"]'_
+var.classification.username	| string	| 		  | 	    | classification center username
+var.classification.pass		| string	|		  | 	    | classification center password
