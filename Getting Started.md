@@ -1,3 +1,4 @@
+
 # empow logstash classification plugin & Elastic module 
 The [Elastic stack](https://www.elastic.co/products) allows you to ingest log data from many sources, parse and manipulate it, store it, analyze it, and visualize it. The stack consists of three components, [Logstash](https://www.elastic.co/products/logstash), for data ingestion and manipulation, [Elasticsearch](https://www.elastic.co/products/elasticsearch), for storage and analysis of data, and [Kibana](https://www.elastic.co/products/kibana), to visualize your data.
 
@@ -34,6 +35,9 @@ Kibana
 
 empow module
 
+Optional
+
+curl
 
 --- 
 

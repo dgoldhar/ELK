@@ -88,11 +88,11 @@ These field accepts true/false (Boolean) values that describes whether the sourc
 
 [' _empow_classifer_timeout']
 
-# Using the empowclassifier plugin
+# Use the empowclassifier plugin
 
 ## Example
 
-A log may look like this before the classification (in json representation, probably not ideal to show on the logstash manuals):
+A log may look like this before the classification (in json representation):
  
 ```
 {
@@ -102,7 +102,7 @@ A log may look like this before the classification (in json representation, prob
 }
 ```
  
-After filtering, using the plugin, the response would be contain these fields:
+After filtering, using the plugin, the response would contain these fields:
  
 ```
 {
@@ -117,12 +117,11 @@ After filtering, using the plugin, the response would be contain these fields:
 ```
  
 
-```signatureTactics``` is an array of the tactics classified by empow.
+where ```signatureTactics``` is an array of the tactics classified by empow.
 
-each result contains the actual tactic,
-
-the attack stage empow classified for this log (determined by the tactic and whether the source and dest are within the user's network),
-
-and whether the source was the performer or the victim of this attack.
+Each resultin the response contains:
+- the actual tactic
+- the attack stage empow classified for this log (determined by the tactic and dependent on whether the source and dest are within the user's network)
+- an indication whether the source was the performer or the victim of this attack.
 
  

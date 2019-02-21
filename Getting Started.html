@@ -31,15 +31,15 @@ td,th {border="1")
 <p>Elasticsearch</p>
 <p>Kibana</p>
 <p>empow module</p>
-<hr>
+<hr />
 <h1 id="get-started-with-logstash-and-the-empow-plugin">Get started with logstash and the empow plugin</h1>
-<p>The procedures below use <em>dpkg</em> on Ubuntu. Other methods to acquire and install packages can also be used (we have references to relevant sites for packages and methods)</p>
+<p>The procedures below use <em>dpkg</em> on Ubuntu to install the Elastic stack. Other methods to acquire and install packages can also be used (refer to <a href="https://www.elastic.co/downloads">Elastic</a>)</p>
 <h2 id="java">Java</h2>
 <p><em>Check if Java is installed</em></p>
 <p>Java must be installed before installing logstash. Run this commmand to check if Java is installed, and which version. If an error is returned, or the version is not Java 8, follow the steps to install Java.</p>
 <p><code>java -version</code></p>
 <h3 id="install-java-8">Install Java 8</h3>
-<p><code>sudo apt install openjdk-8-jdk</code></p>
+<p><code>sudo apt-get install openjdk-8-jdk</code></p>
 <p>Confirm the installation</p>
 <p><code>java -version</code></p>
 <p>This should return something like this:</p>
@@ -58,7 +58,7 @@ sudo dpkg -i logstash-6.5.4.deb
 <p><code>sudo service logstash status</code></p>
 <hr>
 <h2 id="empow-classification-plugin">empow classification plugin</h2>
-<p>The empow classification plugin classifies attack log information to show attack intent and attack stage. It uses the cloud-based emplow classification center.</p>
+<p>The empow classification plugin enriches logs by adding information to show attack intent and attack stage, using emplow classification technology.</p>
 <h3 id="install-the-plugin">Install the plugin</h3>
 <p><code>sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-empowclassifier</code></p>
 <h3 id="configure-logstash-for-the-plugin">Configure logstash for the plugin</h3>
@@ -67,7 +67,7 @@ sudo dpkg -i logstash-6.5.4.deb
 <p>Restart Logstash:</p>
 <p><code>sudo service logstash restart</code></p>
 <h3 id="create-a-logstash-pipeline-for-the-plugin-example">Create a logstash pipeline for the plugin (example)</h3>
-<p>This example illustrates how to create a full logstash pipeline in the Logstash config directory (<code>/etc/logstash/conf.d/</code>) to receive logs from a source, filter them using the empow plugin (and other plugins), and send them to an output destination.</p>
+<p>This example illustrates how to create a full logstash pipeline that uses the empow plugin. A pipeline is a logstash configuration that receives logs from a source, filters them using the empow plugin (and other plugins), and then sends them to an output destination.</p>
 <p>A logstash <a href="https://www.elastic.co/guide/en/logstash/current/pipeline.html">pipeline</a> is a config file that consists of three main sections:</p>
 <p><em>input</em> - this defines the source for logs, and the way they are read by logstash</p>
 <p><em>filter</em> - a set of configuration processing and manipulation action on the logs, used to change its structure, or to extract, add, remove, and process, fields in the logs</p>
@@ -175,9 +175,7 @@ output{
 </details>
 <p>This file has the three components of a logstash config file: input &amp; output sections, and a section defining the filtering actions. In this file, the filter refers to the <em>empowclassifier</em> (the plugin), which in turn accesses the empow cloud-based classification system. The input listens on UDP port 2055, and the output is sent to port 1237 on the localhost.</p>
 <p>Copy the pipeline file (rename it <em>snort_empow_example.conf</em>, say) to the logstash config file folder (<code>/etc/logstash/conf.d/</code>), and wait a few seconds for logstash to load it.</p>
-<p><code>sudo cp empow_example.conf /etc/logstash/conf.d/</code></p>
-<p>If it doesn't load, restart logstash (logstash will load all config files it restarts):</p>
-<p><code>sudo service logstash restart</code></p>
+<p><code>sudo cp snort_empow_example.conf /etc/logstash/conf.d/</code></p>
 <p>To test how logstash processes log strings using this example config file, open two terminal sessions, one to listen for logstash output, and one to send a log string to logstash:</p>
 <p>In the first, enter:</p>
 <p><code>nc -luk 1237</code></p>
@@ -195,9 +193,9 @@ output{
 -->
 <hr>
 <h2 id="use-the-empow-module">Use the empow module</h2>
-<p>The empow Elastic classification module is preconfigured to provide a simple configration of Logstash, Elasticsearch, and Kibana that can read security logs from many products and services, process them,  enrich them using the <em>empowclassifier</em> plugin, store them in Elasticsearch, and anlyze them using a set of preconfigured Kibana visualizations and dashboards.</p>
+<p>The empow Elastic classification module is a preconfigured Elastic stack module that includes  a simple configration of Logstash, Elasticsearch, and Kibana that can read security logs from many products and services, process them,  enrich them using the <em>empowclassifier</em> plugin, store them in Elasticsearch, and anlyze them using a set of preconfigured Kibana visualizations and dashboards.</p>
 <p>In order to use the empow module, download and install the module (in the future it will be available on Elastic as an open source module), install additional logstash plugins (used by the preconfigured empow module logstash pipeline), and install both Kibana and Elasticsearch.</p>
-<p>In this note, we assume that the entire Elastic stack (Logstash, Elasticsearch, and Kibana) is installed on the same node. If you install them on different nodes, or deploy a cluster of elasticsearch nodes, further configuration is required, that is not covered by this note.</p>
+<p>In this guide, we assume that the entire Elastic stack (Logstash, Elasticsearch, and Kibana) is installed on the same node. If you install them on different nodes, or deploy a cluster of elasticsearch nodes, further configuration is required, that is not covered here.</p>
 <h2 id="elasticsearch">Elasticsearch</h2>
 <h3 id="install-elasticsearch">Install elasticsearch</h3>
 <p><code>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.6.0.deb</code></p>
@@ -236,16 +234,16 @@ output{
 sudo dpkg -i kibana-6.6.0-amd64.deb
 </code></pre>
 <h3 id="configure-kibana">Configure Kibana</h3>
-<p>Add the following line to the kibana configuration file (<code>/etc/kibana/kibana.yml</code> ) to enable remote access to kibana:</p>
+<p>Add the following line to the kibana configuration file (<code>/etc/kibana/kibana.yml</code> ) to enable remote access to kibana (skip this step if you are running your browser on the same host as Kibana):</p>
 <p><code>server.host: &quot;0.0.0.0&quot;</code></p>
-<p>Note: if an the entry for <code>server.host</code> alreay exists, change it to <code>&quot;0.0.0.0&quot;</code></p>
+<p>Note: if an entry for <code>server.host</code> alreay exists, change it to <code>&quot;0.0.0.0&quot;</code></p>
 <h3 id="start-the-kibana-as-a-service">Start the Kibana as a service</h3>
 <p><code>sudo service kibana start</code></p>
 <h4 id="test-that-kibana-is-running">Test that Kibana is running</h4>
 <p><code>sudo service kibana status</code></p>
 <p>Open the following URL in a browser</p>
 <p><code>http://localhost:5601</code></p>
-<p>The Kibana home page should appear.</p>
+<p>You should see the Kibana home page.</p>
 <hr>
 <h2 id="empow-classification-module">empow classification module</h2>
 <h3 id="download-the-empow-module">Download the empow module</h3>
@@ -255,7 +253,7 @@ sudo wget &quot;.../empow_classification_module.tar
 sudo tar xvf empow_classification_module.tar
 </code></pre>
 <h3 id="configure-logstash">Configure Logstash</h3>
-<p>Add this line to to <code>logstash.yml</code> to disable automatic loading of configuration files (this conflicts with the module):</p>
+<p>Add this line  to <code>logstash.yml</code> to disable automatic loading of configuration files (this conflicts with the module):</p>
 <p><code>config.reload.automatic: true</code></p>
 <p>Add the following lines:</p>
 <pre><code>modules:
@@ -266,10 +264,131 @@ sudo tar xvf empow_classification_module.tar
  var.classification.pass: &quot;******&quot;
 </code></pre>
 <p>Install additional plugins, used by the module:</p>
-<pre><code>sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-uuid logstash-filter-translate logstash-filter-prune
+<pre><code>sudo /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate logstash-filter-prune
 </code></pre>
 <p>Restart the logstash service:</p>
 <p><code>sudo service logstash restart</code></p>
+<h3 id="configure-the-empow-elastic-stack-module">Configure the empow Elastic stack module</h3>
+<p>As with any Elastic stack <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules.html">module</a>, the empow module can be configured using variables that can be added to the YML configuration file, or included in the command line</p>
+<h4 id="common-elastic-module-configuration-variables-partial-list">Common Elastic module configuration variables (partial list)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">name</th>
+<th style="text-align: center;">type</th>
+<th style="text-align: center;">values</th>
+<th style="text-align: left;">default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">var.elasticsearch.ssl.enabled</td>
+<td style="text-align: center;">boolean</td>
+<td style="text-align: center;">true/false</td>
+<td style="text-align: left;">true</td>
+</tr>
+<tr>
+<td style="text-align: left;">var.kibana.ssl.enabled</td>
+<td style="text-align: center;">boolean</td>
+<td style="text-align: center;">true/false</td>
+<td style="text-align: left;">true</td>
+</tr>
+<tr>
+<td style="text-align: left;">var.elasticsearch.username</td>
+<td style="text-align: center;">string</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">&quot;&quot;</td>
+</tr>
+<tr>
+<td style="text-align: left;">var.elasticsearch.password</td>
+<td style="text-align: center;">string</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">&quot;&quot;</td>
+</tr>
+<tr>
+<td style="text-align: left;">var.elasticsearch.index_suffix</td>
+<td style="text-align: center;">string</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">&quot;%{+YYYY.MM.dd}&quot;</td>
+</tr>
+<tr>
+<td style="text-align: left;">var.elasticsearch.hosts</td>
+<td style="text-align: center;">list</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">[&quot;localhost:9200&quot;]</td>
+</tr>
+</tbody>
+</table>
+<h4 id="empow-module-configuration-variables">empow module configuration variables</h4>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th style="text-align: center;">type</th>
+<th style="text-align: center;">values</th>
+<th style="text-align: left;">default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>var.input.ids.snort.port</td>
+<td style="text-align: center;">integer</td>
+<td style="text-align: center;">1-65535</td>
+<td style="text-align: left;">10514</td>
+<td>listening port for snort ids logs</td>
+</tr>
+<tr>
+<td>var.input.ids.paloalto.port</td>
+<td style="text-align: center;">integer</td>
+<td style="text-align: center;">1-65535</td>
+<td style="text-align: left;">10515</td>
+<td>listening port for paloalto ids logs</td>
+</tr>
+<tr>
+<td>var.input.ids.fortinet.port</td>
+<td style="text-align: center;">integer</td>
+<td style="text-align: center;">1-65535</td>
+<td style="text-align: left;">10516</td>
+<td>listening port for fortinet ids logs</td>
+</tr>
+<tr>
+<td>var.input.av.symantec.port</td>
+<td style="text-align: center;">integer</td>
+<td style="text-align: center;">1-65535</td>
+<td style="text-align: left;">10520</td>
+<td>listening port for symantec av logs</td>
+</tr>
+<tr>
+<td>var.input.av.trendmicro.port</td>
+<td style="text-align: center;">integer</td>
+<td style="text-align: center;">1-65535</td>
+<td style="text-align: left;">10521</td>
+<td>listening port for trendmicro antivirus logs</td>
+</tr>
+<tr>
+<td>var.internal.networks</td>
+<td style="text-align: center;">list</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">[]</td>
+<td>list of internal networks; example: <em>'[&quot;10.0.1.0/24&quot;, &quot;11.68.0.0/16&quot;]'</em></td>
+</tr>
+<tr>
+<td>var.classification.username</td>
+<td style="text-align: center;">string</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"></td>
+<td>classification center username</td>
+</tr>
+<tr>
+<td>var.classification.pass</td>
+<td style="text-align: center;">string</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"></td>
+<td>classification center password</td>
+</tr>
+</tbody>
+</table>
 
     </body>
 </html>
